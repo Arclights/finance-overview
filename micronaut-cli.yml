@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: com.example
+testFramework: junit
+sourceLanguage: kotlin
+buildTool: gradle_kotlin
+features: [app-name, data, data-r2dbc, flyway, graalvm, gradle, graphql, http-client-test, jdbc-hikari, junit, kotlin, kotlin-application, ksp, log4j2, micronaut-aot, micronaut-build, micronaut-http-validation, mockito, netty-server, postgres, properties, r2dbc, readme, rxjava3, serialization-jackson, shade, static-resources, test-resources]

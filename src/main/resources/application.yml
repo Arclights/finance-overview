@@ -1,0 +1,16 @@
+flyway:
+  datasources:
+    default:
+      enabled: 'true'
+datasources:
+  default:
+    db-type: postgres
+    driver-class-name: org.postgresql.Driver
+micronaut:
+  application:
+    name: financeOverview
+r2dbc:
+  datasources:
+    default:
+      dialect: POSTGRES
+      db-type: postgres
