@@ -1,42 +1,98 @@
-| Report |         |
-|--------|---------|
-| id     | uuid    |
-| month  | text/id |
-| year   | int     |
+# Tables
 
-| Transaction |                |
+### Statement
+
+| Name       | Type      |
+|------------|-----------|
+| id         | uuid      |
+| month      | enum      |
+| year       | int       |
+| created_at | timestamp |
+| updated_at | timestamp |
+
+### Transaction
+
+| Name        | Type           |
 |-------------|----------------|
 | id          | uuid           |
 | date        | date           |
-| reportId    | fk             |
+| statementId | fk             |
 | type        | income/expense |
 | amount      | decimal        |
+| created_at  | timestamp      |
+| updated_at  | timestamp      |
 
-| Category Type |      |
-|---------------|------|
-| id            | uuid |
-| name          | text |
+### Category Type
 
-| Category       |      |
-|----------------|------|
-| id             | uuid |
-| name           | text |
-| categoryTypeId | fk   |
+| Name       | Type      |
+|------------|-----------|
+| id         | uuid      |
+| name       | text      |
+| created_at | timestamp |
+| updated_at | timestamp |
 
-| Transaction - Category |    |
-|------------------------|----|
-| transactionId          | fk |
-| categoryId             | fk |
+### Category
 
-| External Source |      |
-|-----------------|------|
-| id              | uuid |
-| name            | text |
+| Name           | Type      |
+|----------------|-----------|
+| id             | uuid      |
+| name           | text      |
+| categoryTypeId | fk        |
+| created_at     | timestamp |
+| updated_at     | timestamp |
 
-| External Labels  |      |
-|------------------|------|
-| id               | uuid |
-| externalSourceId | fk   |
-| name             | text |
-| categoryId       | fk   |
+### Transaction - Category
 
+| Name          | Type      |
+|---------------|-----------|
+| transactionId | fk        |
+| categoryId    | fk        |
+| created_at    | timestamp |
+| updated_at    | timestamp |
+
+### External Source
+
+| Name       | Type      |
+|------------|-----------|
+| id         | uuid      |
+| name       | text      |
+| created_at | timestamp |
+| updated_at | timestamp |
+
+### External Labels
+
+| Name             | Type      |
+|------------------|-----------|
+| id               | uuid      |
+| externalSourceId | fk        |
+| name             | text      |
+| categoryId       | fk        |
+| created_at       | timestamp |
+| updated_at       | timestamp |
+
+### Recurring Transactions
+
+| Name       | Type           |
+|------------|----------------|
+| id         | uuid           |
+| type       | income/expense |
+| amount     | decimal        |
+| created_at | timestamp      |
+| updated_at | timestamp      |
+
+### Recurring Transaction - Category
+
+| Name                   | Type      |
+|------------------------|-----------|
+| recurringTransactionId | fk        |
+| categoryId             | fk        |
+| created_at             | timestamp |
+| updated_at             | timestamp |
+
+# Endpoints
+
+`/v1/statements`
+
+`/v1/statements/<id>/transactions?page&pageSize&categories&categoryTypes`
+
+`/v1/statements/<id>/transactions/sum`
