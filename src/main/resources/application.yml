@@ -1,16 +1,19 @@
 flyway:
   datasources:
     default:
-      enabled: 'true'
+      enabled: true
 datasources:
   default:
     db-type: postgres
     driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost/financeOverview
+    username: postgres
+    password: password
 micronaut:
   application:
     name: financeOverview
-r2dbc:
-  datasources:
-    default:
-      dialect: POSTGRES
-      db-type: postgres
+#r2dbc:
+#  datasources:
+#    default:
+#      dialect: POSTGRES
+#      db-type: postgres
