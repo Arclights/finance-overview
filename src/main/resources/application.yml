@@ -12,6 +12,10 @@ datasources:
 micronaut:
   application:
     name: financeOverview
+jpa:
+  default:
+    entity-scan:
+      packages: com.acrlights.finance_overview.persistence.models
 #r2dbc:
 #  datasources:
 #    default:

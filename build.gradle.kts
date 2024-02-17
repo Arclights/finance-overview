@@ -1,6 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.9.22"
     id("org.jetbrains.kotlin.plugin.allopen") version "1.9.22"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.9.22"
     id("com.google.devtools.ksp") version "1.9.22-1.0.17"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("io.micronaut.application") version "4.3.2"
@@ -9,7 +10,7 @@ plugins {
 }
 
 version = "0.1"
-group = "com.example"
+group = "com.arclights"
 
 val kotlinVersion=project.properties.get("kotlinVersion")
 repositories {
@@ -26,6 +27,7 @@ dependencies {
     implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
     implementation("io.micronaut.rxjava3:micronaut-rxjava3")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
+    implementation("io.micronaut.data:micronaut-data-hibernate-jpa")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
     implementation("ch.qos.logback:logback-classic")
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
@@ -42,7 +44,7 @@ dependencies {
 
 
 application {
-    mainClass.set("com.example.ApplicationKt")
+    mainClass.set("com.arclights.ApplicationKt")
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("21")
@@ -55,7 +57,7 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("com.example.*")
+        annotations("com.arclights.*")
     }
     aot {
     // Please review carefully the optimizations enabled below
