@@ -1,4 +1,4 @@
-package com.example
+package com.acrlights.finance_overview
 import io.micronaut.runtime.EmbeddedApplication
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions

@@ -1,4 +1,4 @@
-package com.example
+package com.acrlights.finance_overview
 
 import io.micronaut.runtime.Micronaut.run
 
