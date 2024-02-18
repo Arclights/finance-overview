@@ -1,7 +1,9 @@
 package com.acrlights.finance_overview.services
 
 import com.acrlights.finance_overview.http.models.StatementDto
+import com.acrlights.finance_overview.http.models.reponses.PageableResponse
 import com.acrlights.finance_overview.http.models.requests.CreateStatementRequest
+import com.acrlights.finance_overview.http.models.requests.PageableRequest
 import com.acrlights.finance_overview.persistence.models.Statement
 import com.acrlights.finance_overview.persistence.repositories.StatementRepository
 import jakarta.inject.Inject
@@ -18,11 +20,22 @@ class StatementService {
         .let { statementRepository.save(it) }
 
     fun getStatement(id: UUID) = statementRepository.getById(id)
-        ?.let {
-            StatementDto(
-                it.id!!,
-                it.month,
-                it.year
-            )
-        }
+        ?.let(this::mapStatement)
+
+    fun getStatements(pageableRequest: PageableRequest): PageableResponse<StatementDto> =
+        statementRepository.findAll(pageableRequest.toPageable())
+            .let {
+                PageableResponse(
+                    it.content.map(this::mapStatement),
+                    it.pageNumber,
+                    it.totalPages,
+                    it.content.size
+                )
+            }
+
+    private fun mapStatement(statement: Statement) = StatementDto(
+        statement.id!!,
+        statement.month,
+        statement.year
+    )
 }

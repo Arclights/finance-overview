@@ -1,6 +1,7 @@
 package com.acrlights.finance_overview.http.controllers
 
 import com.acrlights.finance_overview.http.models.requests.CreateStatementRequest
+import com.acrlights.finance_overview.http.models.requests.PageableRequest
 import com.acrlights.finance_overview.services.StatementService
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
@@ -19,4 +20,7 @@ class StatementController {
 
     @Get("/{id}")
     fun getStatement(id: UUID) = statementService.getStatement(id)
+
+    @Get("{?pageableRequest*}")
+    fun getStatements(pageableRequest: PageableRequest) = statementService.getStatements(pageableRequest)
 }
