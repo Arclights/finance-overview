@@ -40,6 +40,8 @@ dependencies {
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     testImplementation("io.micronaut:micronaut-http-client")
     testImplementation("org.mockito:mockito-core")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation("org.assertj:assertj-core")
 }
 
 
