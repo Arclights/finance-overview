@@ -1,3 +1,80 @@
+## Diagram
+```mermaid
+erDiagram
+    Statement{
+        uuid id
+        enum month
+        int year
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    Transaction{
+        uuid id
+        string originalName
+        date date
+        enum type
+        decimal amount
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    Category-Type{
+        uuid id
+        string name
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    Main-Category{
+        uuid id
+        string name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    Category{
+        uuid id
+        string name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    External-Source{
+        uuid id
+        string name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    External-Label{
+        uuid id
+        string name
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    Recurring-Transaction{
+        uuid id
+        enum type
+        decimal amount
+        timestamp created_at
+        timestamp updated_at
+    }
+    
+    Statement ||--o{ Transaction : has
+    
+    Transaction }o--o{ Category : is
+    
+    Main-Category }o--|| Category-Type : is
+    Category }o--|| Main-Category : is
+    
+    External-Label }|--|| External-Source : from
+    External-Label }|--|| Category : is
+    
+    Recurring-Transaction }o--o{ Category : is
+```
+
 ## Micronaut 4.3.1 Documentation
 
 - [User Guide](https://docs.micronaut.io/4.3.1/guide/index.html)
