@@ -1,4 +1,4 @@
-package com.acrlights.finance_overview.persistence.models
+package com.acrlights.finance_overview.persistence.entities
 
 import io.micronaut.serde.annotation.Serdeable
 import jakarta.persistence.Column

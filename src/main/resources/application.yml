@@ -15,7 +15,7 @@ micronaut:
 jpa:
   default:
     entity-scan:
-      packages: com.acrlights.finance_overview.persistence.models
+      packages: com.acrlights.finance_overview.persistence.entities
 #r2dbc:
 #  datasources:
 #    default:

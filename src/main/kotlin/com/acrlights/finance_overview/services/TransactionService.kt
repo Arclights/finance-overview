@@ -5,7 +5,7 @@ import com.acrlights.finance_overview.http.models.CategoryDto
 import com.acrlights.finance_overview.http.models.TransactionDto
 import com.acrlights.finance_overview.http.models.reponses.PageableResponse
 import com.acrlights.finance_overview.http.models.requests.PageableRequest
-import com.acrlights.finance_overview.persistence.models.Transaction
+import com.acrlights.finance_overview.persistence.entities.Transaction
 import com.acrlights.finance_overview.persistence.repositories.TransactionRepository
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Inject

@@ -68,7 +68,7 @@ Categorising a specific transaction
 | updated_at    | timestamp |
 
 ### External Source
-Ex. SAS Eurobonus Masteracrd
+Ex. SAS Eurobonus Mastercard
 
 | Name       | Type      |
 |------------|-----------|

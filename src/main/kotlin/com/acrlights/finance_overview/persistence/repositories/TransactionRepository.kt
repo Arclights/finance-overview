@@ -3,7 +3,7 @@ package com.acrlights.finance_overview.persistence.repositories
 import com.acrlights.finance_overview.CategoryQuery
 import com.acrlights.finance_overview.persistence.TransactionSpecifications.Companion.hasCategories
 import com.acrlights.finance_overview.persistence.TransactionSpecifications.Companion.isPartOfStatement
-import com.acrlights.finance_overview.persistence.models.Transaction
+import com.acrlights.finance_overview.persistence.entities.Transaction
 import io.micronaut.data.annotation.Repository
 import io.micronaut.data.jpa.repository.JpaSpecificationExecutor
 import io.micronaut.data.model.Page

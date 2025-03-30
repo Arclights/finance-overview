@@ -4,7 +4,7 @@ import com.acrlights.finance_overview.http.models.StatementDto
 import com.acrlights.finance_overview.http.models.reponses.PageableResponse
 import com.acrlights.finance_overview.http.models.requests.CreateStatementRequest
 import com.acrlights.finance_overview.http.models.requests.PageableRequest
-import com.acrlights.finance_overview.persistence.models.Statement
+import com.acrlights.finance_overview.persistence.entities.Statement
 import com.acrlights.finance_overview.persistence.repositories.StatementRepository
 import jakarta.inject.Inject
 import jakarta.inject.Singleton

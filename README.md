@@ -1,6 +1,7 @@
 ## Diagram
 ```mermaid
 erDiagram
+    %% All the transactions occurring in a month
     Statement{
         uuid id
         enum month
@@ -9,9 +10,11 @@ erDiagram
         timestamp updated_at
     }
     
+    %% A transaction coupled to a statement. Containing the amount and when it happened
     Transaction{
         uuid id
-        string originalName
+        %% original name of the transaction. Probably from the external source. Ex. Mathem12342
+        string originalName  
         date date
         enum type
         decimal amount
@@ -19,6 +22,7 @@ erDiagram
         timestamp updated_at
     }
     
+    %% The type of a category. Ex. Person, Expense type, etc
     Category-Type{
         uuid id
         string name
@@ -26,6 +30,7 @@ erDiagram
         timestamp updated_at
     }
     
+    %% Transaction category. Ex. Shopping (hem). Could be tied to another parent category, Ex. Shopping
     Category{
         uuid id
         uuid parentCategoryId
@@ -34,18 +39,25 @@ erDiagram
         timestamp updated_at
     }
     
+    %% Ex. SAS Eurobonus Mastercard
     External-Source{
         uuid id
         string name
         timestamp created_at
         timestamp updated_at
     }
-    
+
+    %% A label of a transaction from an external source. Ex. Mathem
     External-Label{
         uuid id
         string name
         timestamp created_at
         timestamp updated_at
+    }
+    
+    External-Label-Original-Transaction-Name{
+        uuid externalLabelId
+        string originalTransactionName
     }
     
     Recurring-Transaction{
@@ -64,8 +76,10 @@ erDiagram
     Category }o--|| Category-Type : is
     Category }o--|| Category : is
     
-    External-Label }|--|| External-Source : from
-    External-Label }|--|| Category : is
+    External-Label }o--|| External-Source : from
+    External-Label }o--o{ Category : is
+    
+    External-Label ||--o{ External-Label-Original-Transaction-Name : is
     
     Recurring-Transaction }o--o{ Category : is
 ```

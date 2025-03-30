@@ -1,4 +1,4 @@
-package com.acrlights.finance_overview.persistence.models
+package com.acrlights.finance_overview.persistence.entities
 
 import io.micronaut.serde.annotation.Serdeable
 import jakarta.persistence.Column
@@ -10,12 +10,13 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
+import jakarta.persistence.ManyToOne
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import org.hibernate.annotations.JdbcType
-import org.hibernate.annotations.ManyToAny
 import org.hibernate.dialect.PostgreSQLEnumJdbcType
 
 @Serdeable
@@ -24,6 +25,8 @@ data class Transaction(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
+
+    val originalName: String,
 
     val date: LocalDate,
 
@@ -36,7 +39,10 @@ data class Transaction(
 
     val amount: BigDecimal,
 
-    @ManyToAny
+    @ManyToOne
+    val externalLabel: ExternalLabel? = null,
+
+    @ManyToMany
     @JoinTable(
         name = "transaction_categories",
         joinColumns = [JoinColumn(name = "transaction_id")],

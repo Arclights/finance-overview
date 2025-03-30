@@ -1,8 +1,8 @@
 package com.acrlights.finance_overview.persistence
 
 import com.acrlights.finance_overview.CategoryQuery
-import com.acrlights.finance_overview.persistence.models.Category
-import com.acrlights.finance_overview.persistence.models.Transaction
+import com.acrlights.finance_overview.persistence.entities.Category
+import com.acrlights.finance_overview.persistence.entities.Transaction
 import io.micronaut.data.jpa.repository.criteria.Specification
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
