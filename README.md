@@ -25,16 +25,10 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-
-    Main-Category{
-        uuid id
-        string name
-        timestamp created_at
-        timestamp updated_at
-    }
     
     Category{
         uuid id
+        uuid parentCategoryId
         string name
         timestamp created_at
         timestamp updated_at
@@ -56,6 +50,7 @@ erDiagram
     
     Recurring-Transaction{
         uuid id
+        string name
         enum type
         decimal amount
         timestamp created_at
@@ -66,8 +61,8 @@ erDiagram
     
     Transaction }o--o{ Category : is
     
-    Main-Category }o--|| Category-Type : is
-    Category }o--|| Main-Category : is
+    Category }o--|| Category-Type : is
+    Category }o--|| Category : is
     
     External-Label }|--|| External-Source : from
     External-Label }|--|| Category : is

@@ -31,6 +31,7 @@ CREATE TABLE statements(
 CREATE TABLE transactions(
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     statement_id uuid,
+    original_name varchar,
     "date" date NOT NULL,
     type transaction_type NOT NULL,
     amount NUMERIC NOT NULL,
@@ -50,26 +51,16 @@ CREATE TABLE category_types(
 
 CREATE TABLE categories(
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    name VARCHAR NOT NULL,
+    parent_category_id uuid,
     category_type_id uuid,
+    name VARCHAR NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
     CONSTRAINT fk_category_type
         FOREIGN KEY(category_type_id)
-            REFERENCES category_types(id)
-);
-
-CREATE TABLE transaction_categories(
-    transaction_id uuid,
-    category_id uuid,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP,
-    PRIMARY KEY(transaction_id, category_id),
-    CONSTRAINT fk_transaction
-        FOREIGN KEY(transaction_id)
-            REFERENCES transactions(id),
-    CONSTRAINT fk_category
-        FOREIGN KEY(category_id)
+            REFERENCES category_types(id),
+    CONSTRAINT fk_parent_category_id
+        FOREIGN KEY(parent_category_id)
             REFERENCES categories(id)
 );
 
@@ -97,10 +88,25 @@ CREATE TABLE external_labels(
 
 CREATE TABLE recurring_transactions(
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    name varchar,
     type transaction_type NOT NULL,
     amount NUMERIC NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
+);
+
+CREATE TABLE transaction_categories(
+    transaction_id uuid,
+    category_id uuid,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    PRIMARY KEY(transaction_id, category_id),
+    CONSTRAINT fk_transaction
+        FOREIGN KEY(transaction_id)
+            REFERENCES transactions(id),
+    CONSTRAINT fk_category
+        FOREIGN KEY(category_id)
+            REFERENCES categories(id)
 );
 
 CREATE TABLE recurring_transaction_categories(
