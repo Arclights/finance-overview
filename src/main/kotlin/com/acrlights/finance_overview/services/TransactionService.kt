@@ -1,11 +1,11 @@
 package com.acrlights.finance_overview.services
 
 import com.acrlights.finance_overview.CategoryQuery
-import com.acrlights.finance_overview.http.models.CategoryDto
 import com.acrlights.finance_overview.http.models.TransactionDto
 import com.acrlights.finance_overview.http.models.reponses.PageableResponse
 import com.acrlights.finance_overview.http.models.requests.PageableRequest
-import com.acrlights.finance_overview.persistence.entities.Transaction
+import com.acrlights.finance_overview.mappers.PageMapper
+import com.acrlights.finance_overview.mappers.TransactionMapper
 import com.acrlights.finance_overview.persistence.repositories.TransactionRepository
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Inject
@@ -17,6 +17,12 @@ open class TransactionService {
     @Inject
     private lateinit var transactionRepository: TransactionRepository
 
+    @Inject
+    private lateinit var pageMapper: PageMapper
+
+    @Inject
+    private lateinit var transactionMapper: TransactionMapper
+
     @Transactional
     open fun getTransactions(
         statementId: UUID,
@@ -25,33 +31,8 @@ open class TransactionService {
     ): PageableResponse<TransactionDto> {
         val categoryQuery = CategoryQuery.parse(categoryQueryString)
 
-        return transactionRepository.findByQuery(statementId, categoryQuery, pageableRequest.toPageable())
-            .let { page ->
-                PageableResponse(
-                    items = page.content.map {
-                        TransactionDto(
-                            it.id!!,
-                            it.date,
-                            it.type.let { type ->
-                                return@let when (type) {
-                                    Transaction.TransactionType.Income -> TransactionDto.TransactionTypeDto.INCOME
-                                    Transaction.TransactionType.Expense -> TransactionDto.TransactionTypeDto.EXPENSE
-                                }
-                            },
-                            it.amount,
-                            it.categories.map { category ->
-                                CategoryDto(
-                                    category.id!!,
-                                    category.name
-                                )
-                            }
-                        )
-                    },
-                    pageNumber = page.pageNumber,
-                    numberOfPages = page.totalPages,
-                    pageSize = page.size
-                )
-            }
-
+        return transactionRepository
+            .findByQuery(statementId, categoryQuery, pageableRequest.toPageable())
+            .let { pageMapper.map(it, transactionMapper::map) }
     }
 }
