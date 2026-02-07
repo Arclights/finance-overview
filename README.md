@@ -1,3 +1,8 @@
+## Requirements
+
+- **JDK 17 or later** (Gradle and Micronaut plugins require JVM 17+; the project is built for Java 21.)
+- Set `JAVA_HOME` to your JDK 17+ installation if the build reports a JVM version error.
+
 ## Diagram
 ```mermaid
 erDiagram

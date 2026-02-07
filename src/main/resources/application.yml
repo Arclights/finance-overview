@@ -6,18 +6,16 @@ datasources:
   default:
     db-type: postgres
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost/financeOverview
-    username: postgres
-    password: password
+    url: jdbc:postgresql://server/finance-overview-dev
 micronaut:
   application:
     name: financeOverview
 jpa:
   default:
     entity-scan:
-      packages: com.acrlights.finance_overview.persistence.entities
-#r2dbc:
-#  datasources:
-#    default:
-#      dialect: POSTGRES
-#      db-type: postgres
+      packages: com.arclights.finance_overview.persistence.entities
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: none
+        show_sql: true
