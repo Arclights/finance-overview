@@ -10,6 +10,9 @@ datasources:
 micronaut:
   application:
     name: financeOverview
+  serde:
+    serialization:
+      inclusion: NON_NULL
 jpa:
   default:
     entity-scan:

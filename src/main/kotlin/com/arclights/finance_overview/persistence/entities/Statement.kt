@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import java.time.LocalDateTime
 import java.time.Month
 import java.util.UUID
@@ -20,11 +21,17 @@ data class Statement(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
+
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "month_enum")
     @JdbcType(PostgreSQLEnumJdbcType::class)
     val month: Month,
+
     val year: Int,
+
+    @OneToMany(mappedBy = "statement")
+    val transactions: List<Transaction> = listOf(),
+
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null
 )

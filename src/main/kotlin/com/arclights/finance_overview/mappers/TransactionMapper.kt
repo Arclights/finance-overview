@@ -3,6 +3,7 @@ package com.arclights.finance_overview.mappers
 import com.arclights.finance_overview.http.models.TransactionDto
 import com.arclights.finance_overview.persistence.entities.Category
 import com.arclights.finance_overview.persistence.entities.OriginalTransactionName
+import com.arclights.finance_overview.persistence.entities.Statement
 import com.arclights.finance_overview.persistence.entities.Transaction
 import com.arclights.finance_overview.transactionimport.TransactionImport
 import jakarta.inject.Inject
@@ -29,7 +30,7 @@ class TransactionMapper {
     )
 
     fun map(
-        statementId: UUID,
+        statement: Statement,
         importedCardTransactions: List<TransactionImport.ImportedCardTransaction>,
         categories: List<Category>,
         originalTransactionNamesMap: Map<String, OriginalTransactionName>
@@ -37,7 +38,7 @@ class TransactionMapper {
         val externalLabel = originalTransactionNamesMap[importedCardTransaction.originalName]?.externalLabel
         val externalLabelCategories = externalLabel?.categories ?: listOf()
         Transaction(
-            statementId = statementId,
+            statement = statement,
             originalName = importedCardTransaction.originalName,
             date = importedCardTransaction.date,
             amount = importedCardTransaction.amount,

@@ -7,6 +7,7 @@ import com.arclights.finance_overview.persistence.entities.Category
 import com.arclights.finance_overview.persistence.entities.OriginalTransactionName
 import com.arclights.finance_overview.persistence.repositories.CategoryRepository
 import com.arclights.finance_overview.persistence.repositories.OriginalTransactionNameRepository
+import com.arclights.finance_overview.persistence.repositories.StatementRepository
 import com.arclights.finance_overview.persistence.repositories.TransactionRepository
 import com.arclights.finance_overview.transactionimport.SasEurobonusImport
 import com.arclights.finance_overview.transactionimport.TransactionImport
@@ -31,12 +32,17 @@ class TransactionImportService {
     private lateinit var categoryRepository: CategoryRepository
 
     @Inject
+    private lateinit var statementRepository: StatementRepository
+
+    @Inject
     private lateinit var transactionRepository: TransactionRepository
 
     @Inject
     private lateinit var originalTransactionNameRepository: OriginalTransactionNameRepository
 
     fun import(statementId: UUID, file: ByteArray, externalSource: ExternalSource) {
+        val statement = statementRepository.getById(statementId)!!
+
         // TODO Fetch transaction import configuration
         val dummySasEurobonusMCConfiguration = TransactionImportConfiguration(
             categoriesByAccountIdentifier = mapOf(
@@ -50,7 +56,7 @@ class TransactionImportService {
         val categories = getCategoriesInTransactions(cardTransactions)
         val originalTransactionNamesMap = getOriginalTransactionNames(cardTransactions)
 
-        val transactions = transactionMapper.map(statementId, cardTransactions, categories, originalTransactionNamesMap)
+        val transactions = transactionMapper.map(statement, cardTransactions, categories, originalTransactionNamesMap)
 
         println(cardTransactions)
         println(categories)

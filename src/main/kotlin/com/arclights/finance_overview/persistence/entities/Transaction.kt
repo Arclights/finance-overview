@@ -30,7 +30,8 @@ data class Transaction(
 
     val date: LocalDate,
 
-    val statementId: UUID,
+    @ManyToOne
+    val statement: Statement,
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "transaction_type")
