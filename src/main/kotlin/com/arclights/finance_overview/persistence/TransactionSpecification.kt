@@ -4,7 +4,7 @@ import com.arclights.finance_overview.CategoryQuery
 import com.arclights.finance_overview.persistence.entities.Category
 import com.arclights.finance_overview.persistence.entities.Statement
 import com.arclights.finance_overview.persistence.entities.Transaction
-import io.micronaut.data.jpa.repository.criteria.Specification
+import io.micronaut.data.repository.jpa.criteria.QuerySpecification
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Path
@@ -15,7 +15,7 @@ import java.util.UUID
 class TransactionSpecifications {
 
     companion object {
-        class isPartOfStatement(private val statementId: UUID) : Specification<Transaction> {
+        class isPartOfStatement(private val statementId: UUID) : QuerySpecification<Transaction> {
             override fun toPredicate(
                 root: Root<Transaction>?,
                 query: CriteriaQuery<*>?,
@@ -23,7 +23,7 @@ class TransactionSpecifications {
             ): Predicate = criteriaBuilder?.equal(root?.get<Statement>("statement")?.get<UUID>("id"), statementId)!!
         }
 
-        class hasCategories(private val categoryQuery: CategoryQuery) : Specification<Transaction> {
+        class hasCategories(private val categoryQuery: CategoryQuery) : QuerySpecification<Transaction> {
             override fun toPredicate(
                 root: Root<Transaction>?,
                 query: CriteriaQuery<*>?,
