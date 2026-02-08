@@ -2,6 +2,7 @@ package com.arclights.finance_overview.http.controllers
 
 import com.arclights.finance_overview.http.models.ExternalSource
 import com.arclights.finance_overview.http.models.requests.CreateStatementRequest
+import com.arclights.finance_overview.http.models.requests.CreateTransactionV1Request
 import com.arclights.finance_overview.http.models.requests.PageableRequest
 import com.arclights.finance_overview.services.StatementService
 import com.arclights.finance_overview.services.TransactionImportService
@@ -10,6 +11,7 @@ import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
+import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
 import io.micronaut.http.annotation.QueryValue
 import jakarta.inject.Inject
@@ -43,7 +45,11 @@ class StatementController {
         pageableRequest: PageableRequest
     ) = transactionService.getTransactions(id, categoryQuery, pageableRequest)
 
+    @Post("/{id}/transactions")
+    fun addTransaction(@PathVariable id: UUID, @Body request: CreateTransactionV1Request) =
+        transactionService.createTransaction(id, request)
+
     @Post(value = "/{id}/transactions/import/{externalSource}", consumes = [MediaType.MULTIPART_FORM_DATA])
-    fun importTransactions(id:UUID, file: ByteArray, externalSource: ExternalSource) =
+    fun importTransactions(id: UUID, file: ByteArray, externalSource: ExternalSource) =
         transactionImportService.import(id, file, externalSource)
 }

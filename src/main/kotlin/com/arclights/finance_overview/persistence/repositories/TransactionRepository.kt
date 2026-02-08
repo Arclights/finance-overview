@@ -1,7 +1,6 @@
 package com.arclights.finance_overview.persistence.repositories
 
 import com.arclights.finance_overview.CategoryQuery
-import com.arclights.finance_overview.persistence.TransactionSpecifications.Companion.hasCategories
 import com.arclights.finance_overview.persistence.TransactionSpecifications.Companion.isPartOfStatement
 import com.arclights.finance_overview.persistence.entities.Transaction
 import io.micronaut.data.annotation.Repository
@@ -16,5 +15,5 @@ import java.util.UUID
 abstract class TransactionRepository : PageableRepository<Transaction, UUID>, JpaSpecificationExecutor<Transaction> {
     @Transactional
     open fun findByQuery(statementId: UUID, categoryQuery: CategoryQuery, pageable: Pageable): Page<Transaction> =
-        findAll(isPartOfStatement(statementId).and(hasCategories(categoryQuery)), pageable)
+        findAll(isPartOfStatement(statementId), pageable)//.and(hasCategories(categoryQuery)), pageable)
 }

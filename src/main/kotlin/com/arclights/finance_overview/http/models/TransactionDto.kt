@@ -9,9 +9,10 @@ import java.util.UUID
 data class TransactionDto(
     val id: UUID,
     val date: LocalDate,
-    val type: TransactionTypeDto,
-    val amount: BigDecimal,
-    val categories:List<CategoryDto>
+    val title: String,
+    val amount: TransactionAmountDto,
+    val comment: String?,
+    val categoryIds:List<UUID>
 ) {
     @Serdeable
     enum class TransactionTypeDto {
@@ -19,3 +20,6 @@ data class TransactionDto(
         EXPENSE
     }
 }
+
+@Serdeable
+data class TransactionAmountDto(val `in`: BigDecimal, val out: BigDecimal)

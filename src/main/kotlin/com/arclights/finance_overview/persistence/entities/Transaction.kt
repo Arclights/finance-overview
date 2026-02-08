@@ -40,6 +40,8 @@ data class Transaction(
 
     val amount: BigDecimal,
 
+    val comment: String? = null,
+
     @ManyToOne
     val externalLabel: ExternalLabel? = null,
 

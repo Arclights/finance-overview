@@ -2,6 +2,7 @@ package com.arclights.finance_overview.persistence
 
 import com.arclights.finance_overview.CategoryQuery
 import com.arclights.finance_overview.persistence.entities.Category
+import com.arclights.finance_overview.persistence.entities.Statement
 import com.arclights.finance_overview.persistence.entities.Transaction
 import io.micronaut.data.jpa.repository.criteria.Specification
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -19,7 +20,7 @@ class TransactionSpecifications {
                 root: Root<Transaction>?,
                 query: CriteriaQuery<*>?,
                 criteriaBuilder: CriteriaBuilder?
-            ): Predicate = criteriaBuilder?.equal(root?.get<UUID>("statementId"), statementId)!!
+            ): Predicate = criteriaBuilder?.equal(root?.get<Statement>("statement")?.get<UUID>("id"), statementId)!!
         }
 
         class hasCategories(private val categoryQuery: CategoryQuery) : Specification<Transaction> {

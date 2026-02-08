@@ -6,5 +6,7 @@ import java.util.UUID
 @Serdeable
 data class CategoryDto(
     val id: UUID,
-    val name: String
+    val name: String,
+    val type: String,
+    val image: String? = null,
 )

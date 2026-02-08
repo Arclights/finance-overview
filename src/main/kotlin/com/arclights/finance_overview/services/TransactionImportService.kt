@@ -1,11 +1,8 @@
 package com.arclights.finance_overview.services
 
-import com.arclights.finance_overview.TransactionImportException
 import com.arclights.finance_overview.http.models.ExternalSource
 import com.arclights.finance_overview.mappers.TransactionMapper
-import com.arclights.finance_overview.persistence.entities.Category
 import com.arclights.finance_overview.persistence.entities.OriginalTransactionName
-import com.arclights.finance_overview.persistence.repositories.CategoryRepository
 import com.arclights.finance_overview.persistence.repositories.OriginalTransactionNameRepository
 import com.arclights.finance_overview.persistence.repositories.StatementRepository
 import com.arclights.finance_overview.persistence.repositories.TransactionRepository
@@ -29,7 +26,7 @@ class TransactionImportService {
     private lateinit var transactionMapper: TransactionMapper
 
     @Inject
-    private lateinit var categoryRepository: CategoryRepository
+    private lateinit var transactionService: TransactionService
 
     @Inject
     private lateinit var statementRepository: StatementRepository
@@ -53,7 +50,7 @@ class TransactionImportService {
         val cardTransactions = transactionImports.first { it.importsType() == externalSource }
             .import(file, statementId, dummySasEurobonusMCConfiguration)
 
-        val categories = getCategoriesInTransactions(cardTransactions)
+        val categories = transactionService.getCategoriesOrThrow(cardTransactions.flatMap { it.categoryIds }.toSet())
         val originalTransactionNamesMap = getOriginalTransactionNames(cardTransactions)
 
         val transactions = transactionMapper.map(statement, cardTransactions, categories, originalTransactionNamesMap)
@@ -65,21 +62,7 @@ class TransactionImportService {
         transactionRepository.saveAll(transactions)
     }
 
-    private fun getCategoriesInTransactions(cardTransactions: List<TransactionImport.ImportedCardTransaction>): List<Category> {
-        val categoryIds = cardTransactions.flatMap { it.categoryIds }.distinct()
-
-        val categories = categoryRepository.findAllByIdIn(categoryIds)
-
-        val notFound = categoryIds.minus(categories.map(Category::id).toSet())
-
-        if (notFound.isNotEmpty()) {
-            throw TransactionImportException("Could not find categories with ids $notFound")
-        }
-
-        return categories
-    }
-
-    private fun getOriginalTransactionNames(cardTransactions: List<TransactionImport.ImportedCardTransaction>): Map<String,OriginalTransactionName> {
+    private fun getOriginalTransactionNames(cardTransactions: List<TransactionImport.ImportedCardTransaction>): Map<String, OriginalTransactionName> {
         val originalTransactionNames = cardTransactions
             .map(TransactionImport.ImportedCardTransaction::originalName)
             .toSet()

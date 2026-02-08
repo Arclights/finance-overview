@@ -7,5 +7,5 @@ import java.util.UUID
 
 @Repository
 interface CategoryRepository : PageableRepository<Category, UUID> {
-    fun findAllByIdIn(ids: List<UUID>): List<Category>
+    fun findAllByIdIn(ids: Set<UUID>): Set<Category>
 }

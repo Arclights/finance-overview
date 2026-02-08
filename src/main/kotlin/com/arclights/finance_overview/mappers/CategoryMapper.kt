@@ -7,5 +7,5 @@ import jakarta.inject.Singleton
 @Singleton
 class CategoryMapper {
     fun mapToDto(category: Category): CategoryDto =
-        CategoryDto(category.id!!, category.name)
+        CategoryDto(id = category.id!!, name = category.name, type = category.categoryType.name)
 }
