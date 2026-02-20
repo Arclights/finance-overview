@@ -64,4 +64,14 @@ class TransactionMapper {
             comment = request.comment,
             categories = categories
         )
+
+    fun map(request: CreateTransactionV1Request, transaction: Transaction, categories: Set<Category>): Transaction =
+        transaction.copy(
+            date = request.date,
+            originalName = request.title,
+            type = if (request.amount.`in` > BigDecimal.ZERO) Transaction.TransactionType.Income else Transaction.TransactionType.Expense,
+            amount = if (request.amount.`in` > BigDecimal.ZERO) request.amount.`in` else request.amount.`out`,
+            comment = request.comment,
+            categories = categories
+        )
 }

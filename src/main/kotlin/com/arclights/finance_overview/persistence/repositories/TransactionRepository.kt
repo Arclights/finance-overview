@@ -13,6 +13,7 @@ import java.util.UUID
 
 @Repository
 abstract class TransactionRepository : PageableRepository<Transaction, UUID>, JpaSpecificationExecutor<Transaction> {
+    abstract fun getById(id: UUID): Transaction?
     @Transactional
     open fun findByQuery(statementId: UUID, categoryQuery: CategoryQuery, pageable: Pageable): Page<Transaction> =
         findAll(isPartOfStatement(statementId), pageable)//.and(hasCategories(categoryQuery)), pageable)

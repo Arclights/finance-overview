@@ -13,6 +13,7 @@ import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.Put
 import io.micronaut.http.annotation.QueryValue
 import jakarta.inject.Inject
 import java.util.UUID
@@ -48,6 +49,10 @@ class StatementController {
     @Post("/{id}/transactions")
     fun addTransaction(@PathVariable id: UUID, @Body request: CreateTransactionV1Request) =
         transactionService.createTransaction(id, request)
+
+    @Put("/{id}/transactions/{transactionId}")
+    fun updateTransaction(@PathVariable id: UUID, @PathVariable transactionId: UUID, @Body request: CreateTransactionV1Request) =
+        transactionService.updateTransaction(transactionId, request)
 
     @Post(value = "/{id}/transactions/import/{externalSource}", consumes = [MediaType.MULTIPART_FORM_DATA])
     fun importTransactions(id: UUID, file: ByteArray, externalSource: ExternalSource) =

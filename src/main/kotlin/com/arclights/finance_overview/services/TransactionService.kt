@@ -46,6 +46,18 @@ open class TransactionService {
         return transactionMapper.mapToDto(createdTransaction)
     }
 
+    fun updateTransaction(transactionId: UUID, request: CreateTransactionV1Request): TransactionDto {
+        var transaction = transactionRepository.getById(transactionId)!!
+
+        val categories = getCategoriesOrThrow(request.categoryIds)
+
+        transaction = transactionMapper.map(request, transaction, categories)
+
+        val updatedTransaction = transactionRepository.update(transaction)
+
+        return transactionMapper.mapToDto(updatedTransaction)
+    }
+
     @Transactional
     open fun getTransactions(
         statementId: UUID,
