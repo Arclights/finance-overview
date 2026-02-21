@@ -8,6 +8,9 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.JoinTable
+import jakarta.persistence.ManyToMany
 import jakarta.persistence.OneToMany
 import java.time.LocalDateTime
 import java.time.Month
@@ -31,6 +34,14 @@ data class Statement(
 
     @OneToMany(mappedBy = "statement")
     val transactions: List<Transaction> = listOf(),
+
+    @ManyToMany
+    @JoinTable(
+        name = "statement_persons",
+        joinColumns = [JoinColumn(name = "statement_id")],
+        inverseJoinColumns = [JoinColumn(name = "category_id")]
+    )
+    val persons: List<Category> = listOf(),
 
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null

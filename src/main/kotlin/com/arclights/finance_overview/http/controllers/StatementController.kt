@@ -57,4 +57,8 @@ class StatementController {
     @Post(value = "/{id}/transactions/import/{externalSource}", consumes = [MediaType.MULTIPART_FORM_DATA])
     fun importTransactions(id: UUID, file: ByteArray, externalSource: ExternalSource) =
         transactionImportService.import(id, file, externalSource)
+
+    @Get("/{id}/transactions/person-summary")
+    fun getTransactionSummaryByPerson(@PathVariable id: UUID) =
+        statementService.getTransactionSummaryByPerson(id)
 }
