@@ -3,7 +3,7 @@ package com.arclights.finance_overview.transactionimport
 import com.arclights.finance_overview.TransactionImportException
 import com.arclights.finance_overview.http.models.ExternalSource
 import java.io.ByteArrayInputStream
-import java.time.ZoneId
+import java.time.LocalDate
 import java.util.UUID
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.Row
@@ -20,10 +20,11 @@ class SasEurobonusImport : TransactionImport {
         ByteArrayInputStream(stream).use { s ->
             val sheet = WorkbookFactory.create(s).getSheetAt(0)
             println(sheet)
-            println(sheet.getRow(15).first())
-            val rowsPerCard = getRowsPerCard(sheet.rowIterator(), listOf())
+            val rowIterator = sheet.rowIterator()
+            rowIterator.fastForwardToValue("Totalt belopp")
+
+            val rowsPerCard = getRowsPerCard(rowIterator, listOf())
             val rowsPerCardIdentifier = matchCardRowsWithCardIdentifier(rowsPerCard)
-            println(rowsPerCardIdentifier)
             val rowsPerCardIdentifierCleaned = rowsPerCardIdentifier.mapValues { (_, rows) -> cleanupRows(rows) }
             println(rowsPerCardIdentifierCleaned)
             return rowsPerCardIdentifierCleaned.flatMap { (cardIdentifier, rows) ->
@@ -40,7 +41,13 @@ class SasEurobonusImport : TransactionImport {
 
     private tailrec fun getRowsPerCard(rowIterator: Iterator<Row>, result: List<List<Row>>): List<List<Row>> {
         if (rowIterator.hasNext().not()) {
-            return result.drop(1) // Dropping first group since it does not belong to a card
+            return result
+        }
+
+        rowIterator.next() // Skip empty line
+
+        if (rowIterator.hasNext().not()) {
+            return result
         }
 
         val rows = mutableListOf<Row>()
@@ -57,7 +64,9 @@ class SasEurobonusImport : TransactionImport {
     }
 
     private fun matchCardRowsWithCardIdentifier(rowsPerCard: List<List<Row>>): Map<String, List<Row>> =
-        rowsPerCard.associate { rows -> getCardIdentifier(rows[0]) to rows.drop(1) }
+        rowsPerCard.associate { rows ->
+            getCardIdentifier(rows[0]) to rows.drop(1)
+        }
 
     private fun getCardIdentifier(row: Row): String {
         val firstCell = row.first()
@@ -66,15 +75,18 @@ class SasEurobonusImport : TransactionImport {
         }
 
         val firstCellStringContent = firstCell.stringCellValue
-        if (firstCellStringContent.startsWith("Kortnummer").not()) {
+        if (firstCellStringContent.length != 16) {
             throw TransactionImportException("The cell does not have the correct format, cannot parse card number. '${firstCellStringContent}'")
         }
 
-        val last4CardNumbers = firstCellStringContent.takeLast(4)
-        return last4CardNumbers
+        val last4CardNumbers = firstCellStringContent.takeLast(4).toInt()
+        return last4CardNumbers.toString()
     }
 
-    private fun cleanupRows(rows: List<Row>): List<Row> = rows.filter { it.first().cellType == CellType.NUMERIC }
+    private val dateRegEx = Regex("""\d{4}-\d{2}-\d{2}""")
+    private fun cleanupRows(rows: List<Row>): List<Row> = rows.filter {
+        dateRegEx.matches(it.first().stringCellValue)
+    }
 
     private fun Row.toImportedCardTransaction(
         statementId: UUID,
@@ -83,7 +95,7 @@ class SasEurobonusImport : TransactionImport {
     ): TransactionImport.ImportedCardTransaction = TransactionImport.ImportedCardTransaction(
         originalName = this.getCell(2).stringCellValue,
         statementId = statementId,
-        date = this.first().dateCellValue.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(),
+        date = LocalDate.parse(this.first().stringCellValue),
         categoryIds = getCategories(cardIdentifier, configuration),
         amount = this.getCell(6).numericCellValue.toBigDecimal()
     )
@@ -91,4 +103,17 @@ class SasEurobonusImport : TransactionImport {
     private fun getCategories(cardIdentifier: String, configuration: TransactionImportConfiguration) =
         configuration.categoriesByAccountIdentifier[cardIdentifier]?.toSet()
             ?: throw TransactionImportException("No category configuration found for card identifier $cardIdentifier")
+
+    private tailrec fun Iterator<Row>.fastForwardToValue(value: String) {
+        if (this.hasNext().not()) {
+            throw TransactionImportException("Could not fast forward to value '$value' since it was not found")
+        }
+
+        val nextValue = this.next()
+        if (nextValue.getCell(0).stringCellValue.equals(value)) {
+            return
+        }
+
+        return this.fastForwardToValue(value)
+    }
 }

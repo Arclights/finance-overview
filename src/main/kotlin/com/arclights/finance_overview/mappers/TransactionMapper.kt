@@ -44,8 +44,8 @@ class TransactionMapper {
             statement = statement,
             originalName = importedCardTransaction.originalName,
             date = importedCardTransaction.date,
-            amount = importedCardTransaction.amount,
-            type = Transaction.TransactionType.Expense,
+            amount = importedCardTransaction.amount.abs(),
+            type = if (importedCardTransaction.amount < BigDecimal.ZERO) Transaction.TransactionType.Income else Transaction.TransactionType.Expense,
             categories = categories
                 .filter { importedCardTransaction.categoryIds.contains(it.id) }
                 .plus(externalLabelCategories)

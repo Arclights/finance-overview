@@ -8,6 +8,9 @@ datasources:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://server/finance-overview-dev
 micronaut:
+  server:
+    multipart:
+      max-file-size: 1MB
   application:
     name: financeOverview
   serde:

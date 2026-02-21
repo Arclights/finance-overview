@@ -9,12 +9,13 @@ import com.arclights.finance_overview.persistence.repositories.TransactionReposi
 import com.arclights.finance_overview.transactionimport.SasEurobonusImport
 import com.arclights.finance_overview.transactionimport.TransactionImport
 import com.arclights.finance_overview.transactionimport.TransactionImportConfiguration
+import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import java.util.UUID
 
 @Singleton
-class TransactionImportService {
+open class TransactionImportService {
 
     companion object {
         private val transactionImports: List<TransactionImport> = listOf(
@@ -37,7 +38,8 @@ class TransactionImportService {
     @Inject
     private lateinit var originalTransactionNameRepository: OriginalTransactionNameRepository
 
-    fun import(statementId: UUID, file: ByteArray, externalSource: ExternalSource) {
+    @Transactional
+    open fun import(statementId: UUID, file: ByteArray, externalSource: ExternalSource) {
         val statement = statementRepository.getById(statementId)!!
 
         // TODO Fetch transaction import configuration
