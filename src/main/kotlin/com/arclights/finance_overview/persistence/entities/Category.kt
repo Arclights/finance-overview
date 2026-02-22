@@ -19,6 +19,7 @@ data class Category(
     val name: String,
     @ManyToOne
     val categoryType: CategoryType,
+    val imageUrl: String? = null,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null
 )
