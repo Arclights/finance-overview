@@ -4,6 +4,9 @@ import com.arclights.finance_overview.http.models.Balance
 import com.arclights.finance_overview.http.models.StatementDto
 import com.arclights.finance_overview.http.models.reponses.PageableResponse
 import com.arclights.finance_overview.http.models.reponses.PersonSummaryV1
+import com.arclights.finance_overview.http.models.reponses.PersonalSummedTransactionsV1
+import com.arclights.finance_overview.http.models.reponses.SummedTransactionV1
+import com.arclights.finance_overview.http.models.reponses.TopExpensesV1Response
 import com.arclights.finance_overview.http.models.requests.CreateStatementRequest
 import com.arclights.finance_overview.http.models.requests.PageableRequest
 import com.arclights.finance_overview.mappers.CategoryMapper
@@ -181,5 +184,58 @@ open class StatementService {
         }
 
         return summaries
+    }
+
+    @Transactional
+    open fun getTopExpenses(statementId: UUID, topQuantity: Int, includeComped: Boolean): TopExpensesV1Response {
+        val statement = statementRepository.getById(statementId)
+            ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "Statement $statementId not found")
+
+        val personIds = statement.persons.map { it.id }.toSet()
+
+        val allExpenses = statement.transactions
+            .filter { it.type == Transaction.TransactionType.Expense }
+            .let { transactions ->
+                if (includeComped) transactions
+                else transactions.filter { transaction ->
+                    transaction.categories.none { category -> category.categoryType.name == "Compensated" }
+                }
+            }
+
+        val (personTransactions, commonTransactions) = allExpenses.partition { transaction ->
+            transaction.categories.any { it.id in personIds }
+        }
+
+        fun toSummedTransaction(transaction: Transaction): SummedTransactionV1 {
+            val isComped = transaction.categories.any { it.categoryType.name == "Compensated" }
+            return SummedTransactionV1(
+                name = transaction.originalName,
+                amount = transaction.amount,
+                compensated = isComped
+            )
+        }
+
+        val commonTop = commonTransactions
+            .sortedByDescending { it.amount }
+            .take(topQuantity)
+            .map { toSummedTransaction(it) }
+
+        val personalTop = statement.persons.map { personCategory ->
+            val transactions = personTransactions
+                .filter { transaction -> transaction.categories.any { it.id == personCategory.id } }
+                .sortedByDescending { it.amount }
+                .take(topQuantity)
+                .map { toSummedTransaction(it) }
+            PersonalSummedTransactionsV1(
+                person = categoryMapper.mapToDto(personCategory),
+                transactions = transactions
+            )
+        }
+
+        return TopExpensesV1Response(
+            topQuantity = topQuantity,
+            common = commonTop,
+            personal = personalTop
+        )
     }
 }

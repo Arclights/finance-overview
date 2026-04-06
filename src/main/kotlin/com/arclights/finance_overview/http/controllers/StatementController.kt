@@ -61,4 +61,11 @@ class StatementController {
     @Get("/{id}/transactions/person-summary")
     fun getTransactionSummaryByPerson(@PathVariable id: UUID) =
         statementService.getTransactionSummaryByPerson(id)
+
+    @Get("/{id}/transactions/top-expenses{?topQuantity,includeComped}")
+    fun getTopExpenses(
+        @PathVariable id: UUID,
+        @QueryValue(defaultValue = "10") topQuantity: Int,
+        @QueryValue(defaultValue = "true") includeComped: Boolean
+    ) = statementService.getTopExpenses(id, topQuantity, includeComped)
 }

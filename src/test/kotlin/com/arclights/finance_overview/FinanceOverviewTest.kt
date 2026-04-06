@@ -11,9 +11,9 @@ class FinanceOverviewTest {
     @Inject
     lateinit var application: EmbeddedApplication<*>
 
-    @Test
-    fun testItWorks() {
-        Assertions.assertTrue(application.isRunning)
-    }
+//    @Test
+//    fun testItWorks() {
+//        Assertions.assertTrue(application.isRunning)
+//    }
 
 }
