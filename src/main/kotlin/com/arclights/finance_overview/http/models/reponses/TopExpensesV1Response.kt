@@ -1,6 +1,6 @@
 package com.arclights.finance_overview.http.models.reponses
 
-import com.arclights.finance_overview.http.models.CategoryDto
+import com.arclights.finance_overview.http.models.TaxonomyDto
 import io.micronaut.serde.annotation.Serdeable
 import java.math.BigDecimal
 
@@ -13,7 +13,7 @@ data class TopExpensesV1Response(
 
 @Serdeable
 data class PersonalSummedTransactionsV1(
-    val person: CategoryDto,
+    val person: TaxonomyDto,
     val transactions: List<SummedTransactionV1>
 )
 

@@ -48,11 +48,11 @@ data class Transaction(
 
     @ManyToMany
     @JoinTable(
-        name = "transaction_categories",
+        name = "transaction_taxonomies",
         joinColumns = [JoinColumn(name = "transaction_id")],
-        inverseJoinColumns = [JoinColumn(name = "category_id")]
+        inverseJoinColumns = [JoinColumn(name = "taxonomy_id")]
     )
-    val categories: Set<Category>,
+    val taxonomies: Set<Taxonomy>,
 
     @ManyToOne
     val recurringTransaction: RecurringTransaction? = null,
@@ -67,7 +67,7 @@ data class Transaction(
     }
 
     override fun toString(): String {
-        return "Transaction(id=$id, originalName='$originalName', date=$date, type=$type, amount=$amount, comment=$comment, externalLabel=$externalLabel, categories=$categories, createdAt=$createdAt, updatedAt=$updatedAt)"
+        return "Transaction(id=$id, originalName='$originalName', date=$date, type=$type, amount=$amount, comment=$comment, externalLabel=$externalLabel, taxonomies=$taxonomies, createdAt=$createdAt, updatedAt=$updatedAt)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -85,7 +85,7 @@ data class Transaction(
         result = 31 * result + amount.hashCode()
         result = 31 * result + (comment?.hashCode() ?: 0)
         result = 31 * result + (externalLabel?.hashCode() ?: 0)
-        result = 31 * result + categories.hashCode()
+        result = 31 * result + taxonomies.hashCode()
         result = 31 * result + (createdAt?.hashCode() ?: 0)
         result = 31 * result + (updatedAt?.hashCode() ?: 0)
         return result

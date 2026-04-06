@@ -44,7 +44,7 @@ open class TransactionImportService {
 
         // TODO Fetch transaction import configuration
         val dummySasEurobonusMCConfiguration = TransactionImportConfiguration(
-            categoriesByAccountIdentifier = mapOf(
+            taxonomiesByAccountIdentifier = mapOf(
                 "7709" to listOf(UUID.fromString("01dc5f44-0946-4925-a19d-463ef570585a")),
                 "9395" to listOf(UUID.fromString("cdfbf410-5bd7-45b0-8b95-c420d9644c6b"))
             )
@@ -52,13 +52,13 @@ open class TransactionImportService {
         val cardTransactions = transactionImports.first { it.importsType() == externalSource }
             .import(file, statementId, dummySasEurobonusMCConfiguration)
 
-        val categories = transactionService.getCategoriesOrThrow(cardTransactions.flatMap { it.categoryIds }.toSet())
+        val taxonomies = transactionService.getTaxonomiesOrThrow(cardTransactions.flatMap { it.taxonomyIds }.toSet())
         val originalTransactionNamesMap = getOriginalTransactionNames(cardTransactions)
 
-        val transactions = transactionMapper.map(statement, cardTransactions, categories, originalTransactionNamesMap)
+        val transactions = transactionMapper.map(statement, cardTransactions, taxonomies, originalTransactionNamesMap)
 
         println(cardTransactions)
-        println(categories)
+        println(taxonomies)
         println(originalTransactionNamesMap)
         println(transactions)
         transactionRepository.saveAll(transactions)

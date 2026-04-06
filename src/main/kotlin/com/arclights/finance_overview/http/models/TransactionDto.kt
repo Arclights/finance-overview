@@ -13,7 +13,7 @@ data class TransactionDto(
     val type: TransactionTypeDto,
     val amount: BigDecimal,
     val comment: String?,
-    val categoryIds: List<UUID>,
+    val taxonomyIds: List<UUID>,
     val recurringTransactionId: UUID? = null,
     val recurringTransactionAmount: BigDecimal? = null
 )

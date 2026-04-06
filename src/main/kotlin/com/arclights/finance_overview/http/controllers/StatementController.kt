@@ -39,12 +39,12 @@ class StatementController {
     @Get("{?pageableRequest*}")
     fun getStatements(pageableRequest: PageableRequest) = statementService.getStatements(pageableRequest)
 
-    @Get("/{id}/transactions{?categoryQuery,pageableRequest*}")
+    @Get("/{id}/transactions{?taxonomyQuery,pageableRequest*}")
     fun getTransactions(
         id: UUID,
-        @QueryValue(value = "categoryQuery", defaultValue = "") categoryQuery: String,
+        @QueryValue(value = "taxonomyQuery", defaultValue = "") taxonomyQuery: String,
         pageableRequest: PageableRequest
-    ) = transactionService.getTransactions(id, categoryQuery, pageableRequest)
+    ) = transactionService.getTransactions(id, taxonomyQuery, pageableRequest)
 
     @Post("/{id}/transactions")
     fun addTransaction(@PathVariable id: UUID, @Body request: CreateTransactionV1Request) =
@@ -68,4 +68,11 @@ class StatementController {
         @QueryValue(defaultValue = "10") topQuantity: Int,
         @QueryValue(defaultValue = "true") includeComped: Boolean
     ) = statementService.getTopExpenses(id, topQuantity, includeComped)
+
+    @Get("/{id}/transactions/top-categories{?topQuantity,includeComped}")
+    fun getTopCategories(
+        @PathVariable id: UUID,
+        @QueryValue(defaultValue = "10") topQuantity: Int,
+        @QueryValue(defaultValue = "true") includeComped: Boolean
+    ) = statementService.getTopCategories(id, topQuantity, includeComped)
 }

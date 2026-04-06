@@ -27,18 +27,18 @@ erDiagram
         timestamp updated_at
     }
     
-    %% The type of a category. Ex. Person, Expense type, etc
-    Category-Type{
+    %% The type of a taxonomy. Ex. Person, Category, Compensated
+    Taxonomy-Type{
         uuid id
         string name
         timestamp created_at
         timestamp updated_at
     }
     
-    %% Transaction category. Ex. Shopping (hem). Could be tied to another parent category, Ex. Shopping
-    Category{
+    %% A taxonomy assigned to a transaction. Ex. a person, a spending category, or a compensation marker
+    Taxonomy{
         uuid id
-        uuid parentCategoryId
+        uuid parentTaxonomyId
         string name
         timestamp created_at
         timestamp updated_at
@@ -76,17 +76,17 @@ erDiagram
     
     Statement ||--o{ Transaction : has
     
-    Transaction }o--o{ Category : is
+    Transaction }o--o{ Taxonomy : is
     
-    Category }o--|| Category-Type : is
-    Category }o--|| Category : is
+    Taxonomy }o--|| Taxonomy-Type : is
+    Taxonomy }o--|| Taxonomy : is
     
     External-Label }o--|| External-Source : from
-    External-Label }o--o{ Category : is
+    External-Label }o--o{ Taxonomy : is
     
     External-Label ||--o{ External-Label-Original-Transaction-Name : is
     
-    Recurring-Transaction }o--o{ Category : is
+    Recurring-Transaction }o--o{ Taxonomy : is
 ```
 
 ## Micronaut 4.3.1 Documentation

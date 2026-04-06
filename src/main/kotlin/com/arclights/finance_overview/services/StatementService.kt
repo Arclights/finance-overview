@@ -9,10 +9,10 @@ import com.arclights.finance_overview.http.models.reponses.SummedTransactionV1
 import com.arclights.finance_overview.http.models.reponses.TopExpensesV1Response
 import com.arclights.finance_overview.http.models.requests.CreateStatementRequest
 import com.arclights.finance_overview.http.models.requests.PageableRequest
-import com.arclights.finance_overview.mappers.CategoryMapper
+import com.arclights.finance_overview.mappers.TaxonomyMapper
 import com.arclights.finance_overview.persistence.entities.Statement
 import com.arclights.finance_overview.persistence.entities.Transaction
-import com.arclights.finance_overview.persistence.repositories.CategoryRepository
+import com.arclights.finance_overview.persistence.repositories.TaxonomyRepository
 import com.arclights.finance_overview.mappers.TransactionMapper
 import com.arclights.finance_overview.persistence.repositories.RecurringTransactionRepository
 import com.arclights.finance_overview.persistence.repositories.StatementRepository
@@ -32,10 +32,10 @@ open class StatementService {
     private lateinit var statementRepository: StatementRepository
 
     @Inject
-    private lateinit var categoryRepository: CategoryRepository
+    private lateinit var taxonomyRepository: TaxonomyRepository
 
     @Inject
-    private lateinit var categoryMapper: CategoryMapper
+    private lateinit var taxonomyMapper: TaxonomyMapper
 
     @Inject
     private lateinit var transactionMapper: TransactionMapper
@@ -49,24 +49,24 @@ open class StatementService {
     @Transactional
     open fun createStatement(createStatementRequest: CreateStatementRequest): StatementDto {
         val persons = if (createStatementRequest.personIds.isNotEmpty()) {
-            val categories = categoryRepository.findAllByIdIn(createStatementRequest.personIds.toSet())
+            val taxonomies = taxonomyRepository.findAllByIdIn(createStatementRequest.personIds.toSet())
 
-            // Validate that all categories are of type "Person"
-            val invalidCategories = categories.filter { it.categoryType.name != "Person" }
-            if (invalidCategories.isNotEmpty()) {
+            // Validate that all taxonomies are of type "Person"
+            val invalidTaxonomies = taxonomies.filter { it.taxonomyType.name != "Person" }
+            if (invalidTaxonomies.isNotEmpty()) {
                 throw IllegalArgumentException(
-                    "The following category IDs are not of type 'Person': ${invalidCategories.map { it.id }}"
+                    "The following taxonomy IDs are not of type 'Person': ${invalidTaxonomies.map { it.id }}"
                 )
             }
 
             // Validate that all requested IDs were found
-            if (categories.size != createStatementRequest.personIds.size) {
-                val foundIds = categories.map { it.id }.toSet()
+            if (taxonomies.size != createStatementRequest.personIds.size) {
+                val foundIds = taxonomies.map { it.id }.toSet()
                 val missingIds = createStatementRequest.personIds.filterNot { it in foundIds }
-                throw IllegalArgumentException("The following category IDs were not found: $missingIds")
+                throw IllegalArgumentException("The following taxonomy IDs were not found: $missingIds")
             }
 
-            categories.toList()
+            taxonomies.toList()
         } else {
             listOf()
         }
@@ -119,7 +119,7 @@ open class StatementService {
             statement.transactions.filter { it.type == Transaction.TransactionType.Income }.sumOf { it.amount }
                 .toDouble()// FIXME: Should be comped
         ),
-        persons = statement.persons.map(categoryMapper::mapToDto)
+        persons = statement.persons.map(taxonomyMapper::mapToDto)
     )
 
     @Transactional
@@ -136,7 +136,7 @@ open class StatementService {
 
         // Separate transactions into person-specific and common
         val (personTransactions, commonTransactions) = statement.transactions.partition { transaction ->
-            transaction.categories.any { it.id in personIds }
+            transaction.taxonomies.any { it.id in personIds }
         }
 
         // Calculate common income and expense to be split
@@ -150,10 +150,10 @@ open class StatementService {
             .sumOf { it.amount }
             .divide(personCount.toBigDecimal())
 
-        val summaries = statement.persons.map { personCategory ->
+        val summaries = statement.persons.map { personTaxonomy ->
             // Get all transactions for this person
             val personsTransactions = personTransactions.filter { transaction ->
-                transaction.categories.any { it.id == personCategory.id }
+                transaction.taxonomies.any { it.id == personTaxonomy.id }
             }
 
             // Calculate person-specific income
@@ -166,17 +166,17 @@ open class StatementService {
                 .filter { it.type == Transaction.TransactionType.Expense }
                 .sumOf { it.amount }
 
-            // Calculate compensated (transactions with "Compensated" category type)
+            // Calculate compensated (transactions with "Compensated" taxonomy type)
             val compensated = personsTransactions
                 .filter { transaction ->
-                    transaction.categories.any { category ->
-                        category.categoryType.name == "Compensated"
+                    transaction.taxonomies.any { taxonomy ->
+                        taxonomy.taxonomyType.name == "Compensated"
                     }
                 }
                 .sumOf { it.amount }
 
             PersonSummaryV1(
-                person = categoryMapper.mapToDto(personCategory),
+                person = taxonomyMapper.mapToDto(personTaxonomy),
                 income = personIncome.add(commonIncome),
                 expense = personExpense.add(commonExpense),
                 compensated = compensated
@@ -198,16 +198,16 @@ open class StatementService {
             .let { transactions ->
                 if (includeComped) transactions
                 else transactions.filter { transaction ->
-                    transaction.categories.none { category -> category.categoryType.name == "Compensated" }
+                    transaction.taxonomies.none { taxonomy -> taxonomy.taxonomyType.name == "Compensated" }
                 }
             }
 
         val (personTransactions, commonTransactions) = allExpenses.partition { transaction ->
-            transaction.categories.any { it.id in personIds }
+            transaction.taxonomies.any { it.id in personIds }
         }
 
         fun toSummedTransaction(transaction: Transaction): SummedTransactionV1 {
-            val isComped = transaction.categories.any { it.categoryType.name == "Compensated" }
+            val isComped = transaction.taxonomies.any { it.taxonomyType.name == "Compensated" }
             return SummedTransactionV1(
                 name = transaction.originalName,
                 amount = transaction.amount,
@@ -220,15 +220,73 @@ open class StatementService {
             .take(topQuantity)
             .map { toSummedTransaction(it) }
 
-        val personalTop = statement.persons.map { personCategory ->
+        val personalTop = statement.persons.map { personTaxonomy ->
             val transactions = personTransactions
-                .filter { transaction -> transaction.categories.any { it.id == personCategory.id } }
+                .filter { transaction -> transaction.taxonomies.any { it.id == personTaxonomy.id } }
                 .sortedByDescending { it.amount }
                 .take(topQuantity)
                 .map { toSummedTransaction(it) }
             PersonalSummedTransactionsV1(
-                person = categoryMapper.mapToDto(personCategory),
+                person = taxonomyMapper.mapToDto(personTaxonomy),
                 transactions = transactions
+            )
+        }
+
+        return TopExpensesV1Response(
+            topQuantity = topQuantity,
+            common = commonTop,
+            personal = personalTop
+        )
+    }
+
+    @Transactional
+    open fun getTopCategories(statementId: UUID, topQuantity: Int, includeComped: Boolean): TopExpensesV1Response {
+        val statement = statementRepository.getById(statementId)
+            ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "Statement $statementId not found")
+
+        val personIds = statement.persons.map { it.id }.toSet()
+
+        val allExpenses = statement.transactions
+            .filter { it.type == Transaction.TransactionType.Expense }
+            .let { transactions ->
+                if (includeComped) transactions
+                else transactions.filter { transaction ->
+                    transaction.taxonomies.none { taxonomy -> taxonomy.taxonomyType.name == "Compensated" }
+                }
+            }
+
+        val (personTransactions, commonTransactions) = allExpenses.partition { transaction ->
+            transaction.taxonomies.any { it.id in personIds }
+        }
+
+        fun sumByCategory(transactions: List<Transaction>): List<SummedTransactionV1> {
+            return transactions
+                .flatMap { transaction ->
+                    val isComped = transaction.taxonomies.any { it.taxonomyType.name == "Compensated" }
+                    transaction.taxonomies
+                        .filter { it.taxonomyType.name == "Category" }
+                        .map { taxonomy -> Triple(taxonomy.name, transaction.amount, isComped) }
+                }
+                .groupBy { it.first }
+                .map { (taxonomyName, entries) ->
+                    SummedTransactionV1(
+                        name = taxonomyName,
+                        amount = entries.fold(BigDecimal.ZERO) { acc, (_, amount, _) -> acc.add(amount) },
+                        compensated = entries.any { it.third }
+                    )
+                }
+                .sortedByDescending { it.amount }
+                .take(topQuantity)
+        }
+
+        val commonTop = sumByCategory(commonTransactions)
+
+        val personalTop = statement.persons.map { personTaxonomy ->
+            val transactions = personTransactions
+                .filter { transaction -> transaction.taxonomies.any { it.id == personTaxonomy.id } }
+            PersonalSummedTransactionsV1(
+                person = taxonomyMapper.mapToDto(personTaxonomy),
+                transactions = sumByCategory(transactions)
             )
         }
 

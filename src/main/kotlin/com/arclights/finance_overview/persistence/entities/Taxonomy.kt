@@ -5,15 +5,21 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.ManyToOne
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Serdeable
-@Entity(name = "category_types")
-data class CategoryType (
+@Entity(name = "taxonomies")
+data class Taxonomy(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
+    val parentTaxonomyId: UUID? = null,
     val name: String,
-//    val createdAt: LocalDateTime? = null,
-//    val updatedAt: LocalDateTime? = null
+    @ManyToOne
+    val taxonomyType: TaxonomyType,
+    val imageUrl: String? = null,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null
 )

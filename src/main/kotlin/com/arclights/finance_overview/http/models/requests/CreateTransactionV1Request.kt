@@ -13,5 +13,5 @@ data class CreateTransactionV1Request(
     val type: TransactionTypeDto,
     val amount: BigDecimal,
     val comment: String? = null,
-    val categoryIds: Set<UUID>,
+    val taxonomyIds: Set<UUID>,
 )

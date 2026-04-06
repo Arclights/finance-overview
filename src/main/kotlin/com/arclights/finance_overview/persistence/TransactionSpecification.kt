@@ -1,8 +1,8 @@
 package com.arclights.finance_overview.persistence
 
-import com.arclights.finance_overview.CategoryQuery
-import com.arclights.finance_overview.persistence.entities.Category
+import com.arclights.finance_overview.TaxonomyQuery
 import com.arclights.finance_overview.persistence.entities.Statement
+import com.arclights.finance_overview.persistence.entities.Taxonomy
 import com.arclights.finance_overview.persistence.entities.Transaction
 import io.micronaut.data.repository.jpa.criteria.QuerySpecification
 import jakarta.persistence.criteria.CriteriaBuilder
@@ -23,67 +23,46 @@ class TransactionSpecifications {
             ): Predicate = criteriaBuilder?.equal(root?.get<Statement>("statement")?.get<UUID>("id"), statementId)!!
         }
 
-        class hasCategories(private val categoryQuery: CategoryQuery) : QuerySpecification<Transaction> {
+        class hasTaxonomies(private val taxonomyQuery: TaxonomyQuery) : QuerySpecification<Transaction> {
             override fun toPredicate(
                 root: Root<Transaction>?,
                 query: CriteriaQuery<*>?,
                 criteriaBuilder: CriteriaBuilder?
             ): Predicate {
-                val namePath: Path<String> = root?.join<Transaction, Category>("categories")?.get("name")!!
-                return categoryQuery.toPredicate(namePath, criteriaBuilder!!)
+                val namePath: Path<String> = root?.join<Transaction, Taxonomy>("taxonomies")?.get("name")!!
+                return taxonomyQuery.toPredicate(namePath, criteriaBuilder!!)
             }
 
         }
 
-        private fun CategoryQuery.toPredicate(namePath: Path<String>, criteriaBuilder: CriteriaBuilder): Predicate =
+        private fun TaxonomyQuery.toPredicate(namePath: Path<String>, criteriaBuilder: CriteriaBuilder): Predicate =
             expression.toPredicate(namePath, criteriaBuilder)
 
-        private fun CategoryQuery.CategoryExpression.toPredicate(
+        private fun TaxonomyQuery.TaxonomyExpression.toPredicate(
             namePath: Path<String>,
             criteriaBuilder: CriteriaBuilder
         ): Predicate = when (this) {
-            is CategoryQuery.And -> toPredicate(namePath, criteriaBuilder)
-            is CategoryQuery.Or -> toPredicate(namePath, criteriaBuilder)
-            is CategoryQuery.Category -> toPredicate(namePath, criteriaBuilder)
-            is CategoryQuery.EmptyExpression -> criteriaBuilder.isTrue(criteriaBuilder.literal(true))
+            is TaxonomyQuery.And -> toPredicate(namePath, criteriaBuilder)
+            is TaxonomyQuery.Or -> toPredicate(namePath, criteriaBuilder)
+            is TaxonomyQuery.Taxonomy -> toPredicate(namePath, criteriaBuilder)
+            is TaxonomyQuery.EmptyExpression -> criteriaBuilder.isTrue(criteriaBuilder.literal(true))
             else -> throw IllegalStateException("Cannot discern what expression to convert from")
         }
 
-        private fun CategoryQuery.And.toPredicate(
+        private fun TaxonomyQuery.And.toPredicate(
             namePath: Path<String>,
             criteriaBuilder: CriteriaBuilder
         ): Predicate =
             criteriaBuilder.and(*expressions.map { it.toPredicate(namePath, criteriaBuilder) }.toTypedArray())
 
-        private fun CategoryQuery.Or.toPredicate(
+        private fun TaxonomyQuery.Or.toPredicate(
             namePath: Path<String>,
             criteriaBuilder: CriteriaBuilder
         ): Predicate = criteriaBuilder.or(*expressions.map { it.toPredicate(namePath, criteriaBuilder) }.toTypedArray())
 
-        private fun CategoryQuery.Category.toPredicate(
+        private fun TaxonomyQuery.Taxonomy.toPredicate(
             namePath: Path<String>,
             criteriaBuilder: CriteriaBuilder
         ): Predicate = criteriaBuilder.equal(namePath, value)
     }
-
-//    override fun toPredicate(
-//        root: Root<Transaction>?,
-//        query: CriteriaQuery<*>?,
-//        criteriaBuilder: CriteriaBuilder?
-//    ): Predicate {
-//        val predicate = criteriaBuilder?.equal(root?.get<UUID>("statement_id"), statementId)!!
-//        query.where()
-//        val transactionCategories: Join<Transaction, Category>? = root?.join("categories")
-//
-//        predicate.expressions
-////        return buildPredicate(predicate, categoryQuery, transactionCategories?.get("name")!!)
-//    }
-
-//    private fun buildPredicate(
-//        predicate: Predicate,
-//        categoryQuery: CategoryQuery,
-//        categoryNamePath: Path<String>
-//    ): Predicate {
-//        predicate.
-//    }
 }

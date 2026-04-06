@@ -14,6 +14,6 @@ interface TransactionImport {
         val date: LocalDate,
         val statementId: UUID,
         val amount: BigDecimal,
-        val categoryIds: Set<UUID>
+        val taxonomyIds: Set<UUID>
     )
 }

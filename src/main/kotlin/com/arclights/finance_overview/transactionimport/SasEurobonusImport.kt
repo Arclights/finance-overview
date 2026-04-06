@@ -96,13 +96,13 @@ class SasEurobonusImport : TransactionImport {
         originalName = this.getCell(2).stringCellValue,
         statementId = statementId,
         date = LocalDate.parse(this.first().stringCellValue),
-        categoryIds = getCategories(cardIdentifier, configuration),
+        taxonomyIds = getTaxonomies(cardIdentifier, configuration),
         amount = this.getCell(6).numericCellValue.toBigDecimal()
     )
 
-    private fun getCategories(cardIdentifier: String, configuration: TransactionImportConfiguration) =
-        configuration.categoriesByAccountIdentifier[cardIdentifier]?.toSet()
-            ?: throw TransactionImportException("No category configuration found for card identifier $cardIdentifier")
+    private fun getTaxonomies(cardIdentifier: String, configuration: TransactionImportConfiguration) =
+        configuration.taxonomiesByAccountIdentifier[cardIdentifier]?.toSet()
+            ?: throw TransactionImportException("No taxonomy configuration found for card identifier $cardIdentifier")
 
     private tailrec fun Iterator<Row>.fastForwardToValue(value: String) {
         if (this.hasNext().not()) {

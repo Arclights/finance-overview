@@ -35,11 +35,11 @@ data class RecurringTransaction(
 
     @ManyToMany
     @JoinTable(
-        name = "recurring_transaction_categories",
+        name = "recurring_transaction_taxonomies",
         joinColumns = [JoinColumn(name = "recurring_transaction_id")],
-        inverseJoinColumns = [JoinColumn(name = "category_id")]
+        inverseJoinColumns = [JoinColumn(name = "taxonomy_id")]
     )
-    val categories: Set<Category> = setOf(),
+    val taxonomies: Set<Taxonomy> = setOf(),
 
     val createdAt: LocalDateTime? = null,
 

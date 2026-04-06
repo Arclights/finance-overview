@@ -11,5 +11,5 @@ data class RecurringTransactionDto(
     val name: String,
     val type: Transaction.TransactionType,
     val amount: BigDecimal?,
-    val categoryIds: List<UUID>
+    val taxonomyIds: List<UUID>
 )

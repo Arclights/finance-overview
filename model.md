@@ -25,8 +25,8 @@ A transaction coupled to a statement. Containing the amount and when it happened
 | created_at   | timestamp      |                                                                                      |
 | updated_at   | timestamp      |                                                                                      |
 
-### Category Type
-The type of a category. Ex. Person, Expense type, etc
+### Taxonomy Type
+The type of a taxonomy. Ex. Person, Category, Compensated
 
 | Name       | Type      |
 |------------|-----------|
@@ -35,37 +35,26 @@ The type of a category. Ex. Person, Expense type, etc
 | created_at | timestamp |
 | updated_at | timestamp |
 
-### Main Category
-The category of a category. Ex. Shopping
+### Taxonomy
+A taxonomy that can be assigned to a transaction. Ex. a person, a spending category, or a compensation marker
 
-| Name           | Type      |
-|----------------|-----------|
-| id             | uuid      |
-| name           | text      |
-| categoryTypeId | fk        |
-| created_at     | timestamp |
-| updated_at     | timestamp |
+| Name              | Type      |
+|-------------------|-----------|
+| id                | uuid      |
+| name              | text      |
+| taxonomyTypeId    | fk        |
+| parentTaxonomyId  | fk        |
+| created_at        | timestamp |
+| updated_at        | timestamp |
 
-### Category
-Transaction category. Ex. Shopping (hem)
-
-| Name           | Type      |
-|----------------|-----------|
-| id             | uuid      |
-| name           | text      |
-| mainCategoryId | fk        |
-| created_at     | timestamp |
-| updated_at     | timestamp |
-
-### Transaction - Category
-Categorising a specific transaction
+### Transaction - Taxonomy
+Assigning a taxonomy to a specific transaction
 
 | Name          | Type      |
 |---------------|-----------|
 | transactionId | fk        |
-| categoryId    | fk        |
+| taxonomyId    | fk        |
 | created_at    | timestamp |
-| updated_at    | timestamp |
 
 ### External Source
 Ex. SAS Eurobonus Mastercard
@@ -96,15 +85,14 @@ Connection of an original transaction name to an External label. For automatic p
 | externalLabelId         | fk        |
 | originalTransactionName | text      |
 
-### External label - Category
-Categorising an external label
+### External label - Taxonomy
+Assigning a taxonomy to an external label
 
 | Name            | Type      |
 |-----------------|-----------|
 | externalLabelId | fk        |
-| categoryId      | fk        |
+| taxonomyId      | fk        |
 | created_at      | timestamp |
-| updated_at      | timestamp |
 
 ### Recurring Transaction
 
@@ -116,19 +104,18 @@ Categorising an external label
 | created_at | timestamp      |
 | updated_at | timestamp      |
 
-### Recurring Transaction - Category
+### Recurring Transaction - Taxonomy
 
 | Name                   | Type      |
 |------------------------|-----------|
 | recurringTransactionId | fk        |
-| categoryId             | fk        |
+| taxonomyId             | fk        |
 | created_at             | timestamp |
-| updated_at             | timestamp |
 
 # Endpoints
 
 `/v1/statements`
 
-`/v1/statements/<id>/transactions?page&pageSize&categories&categoryTypes`
+`/v1/statements/<id>/transactions?page&pageSize&taxonomies&taxonomyTypes`
 
 `/v1/statements/<id>/transactions/sum`

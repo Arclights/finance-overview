@@ -1,11 +1,11 @@
 package com.arclights.finance_overview
 
-data class CategoryQuery(val expression: CategoryExpression) {
+data class TaxonomyQuery(val expression: TaxonomyExpression) {
     companion object {
-        fun parse(categoryQuery: String): CategoryQuery = CategoryQuery(parseExpression(QueryIterator(categoryQuery)))
+        fun parse(taxonomyQuery: String): TaxonomyQuery = TaxonomyQuery(parseExpression(QueryIterator(taxonomyQuery)))
 
-        private fun parseExpression(queryIterator: QueryIterator): CategoryExpression = with(queryIterator) {
-            val expressions = mutableListOf<CategoryExpression>()
+        private fun parseExpression(queryIterator: QueryIterator): TaxonomyExpression = with(queryIterator) {
+            val expressions = mutableListOf<TaxonomyExpression>()
             var isAndExpression = false
             var isOrExpression = false
             while (hasNext() && !isEndingParenthesis()) {
@@ -30,7 +30,7 @@ data class CategoryQuery(val expression: CategoryExpression) {
 
                     }
 
-                    else -> parseCategory(queryIterator).let { expressions.add(it) }
+                    else -> parseTaxonomy(queryIterator).let { expressions.add(it) }
                 }
             }
             return if (expressions.isEmpty()) {
@@ -46,7 +46,7 @@ data class CategoryQuery(val expression: CategoryExpression) {
             }
         }
 
-        private fun parseCategory(iterator: QueryIterator): Category = with(iterator) {
+        private fun parseTaxonomy(iterator: QueryIterator): Taxonomy = with(iterator) {
             val sb = StringBuilder()
             while (
                 hasNext()
@@ -57,16 +57,15 @@ data class CategoryQuery(val expression: CategoryExpression) {
             ) {
                 sb.append(next())
             }
-            return Category(sb.toString())
+            return Taxonomy(sb.toString())
         }
     }
 
-    interface CategoryExpression
-
-    data class And(val expressions: List<CategoryExpression>) : CategoryExpression
-    data class Or(val expressions: List<CategoryExpression>) : CategoryExpression
-    data class Category(val value: String) : CategoryExpression
-    class EmptyExpression : CategoryExpression
+    interface TaxonomyExpression
+    data class And(val expressions: List<TaxonomyExpression>) : TaxonomyExpression
+    data class Or(val expressions: List<TaxonomyExpression>) : TaxonomyExpression
+    data class Taxonomy(val value: String) : TaxonomyExpression
+    class EmptyExpression : TaxonomyExpression
 
     class QueryIterator(private val query: String) {
         private var i = 0

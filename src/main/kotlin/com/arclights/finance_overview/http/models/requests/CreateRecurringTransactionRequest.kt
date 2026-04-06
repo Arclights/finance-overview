@@ -10,5 +10,5 @@ data class CreateRecurringTransactionRequest(
     val name: String,
     val type: Transaction.TransactionType,
     val amount: BigDecimal?,
-    val categoryIds: Set<UUID>
+    val taxonomyIds: Set<UUID>
 )

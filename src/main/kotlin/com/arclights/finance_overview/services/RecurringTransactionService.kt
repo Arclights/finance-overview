@@ -3,7 +3,7 @@ package com.arclights.finance_overview.services
 import com.arclights.finance_overview.http.models.RecurringTransactionDto
 import com.arclights.finance_overview.http.models.requests.CreateRecurringTransactionRequest
 import com.arclights.finance_overview.persistence.entities.RecurringTransaction
-import com.arclights.finance_overview.persistence.repositories.CategoryRepository
+import com.arclights.finance_overview.persistence.repositories.TaxonomyRepository
 import com.arclights.finance_overview.persistence.repositories.RecurringTransactionRepository
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -17,7 +17,7 @@ open class RecurringTransactionService {
     private lateinit var recurringTransactionRepository: RecurringTransactionRepository
 
     @Inject
-    private lateinit var categoryRepository: CategoryRepository
+    private lateinit var taxonomyRepository: TaxonomyRepository
 
     @Transactional
     open fun getAll(): List<RecurringTransactionDto> =
@@ -25,12 +25,12 @@ open class RecurringTransactionService {
 
     @Transactional
     open fun create(request: CreateRecurringTransactionRequest): RecurringTransactionDto {
-        val categories = categoryRepository.findAllByIdIn(request.categoryIds)
+        val taxonomies = taxonomyRepository.findAllByIdIn(request.taxonomyIds)
         val recurringTransaction = RecurringTransaction(
             name = request.name,
             type = request.type,
             amount = request.amount,
-            categories = categories
+            taxonomies = taxonomies
         )
         val saved = recurringTransactionRepository.save(recurringTransaction)
         return mapToDto(saved)
@@ -40,12 +40,12 @@ open class RecurringTransactionService {
     open fun update(id: UUID, request: CreateRecurringTransactionRequest): RecurringTransactionDto {
         val existing = recurringTransactionRepository.getById(id)
             ?: throw IllegalArgumentException("Recurring transaction with id $id not found")
-        val categories = categoryRepository.findAllByIdIn(request.categoryIds)
+        val taxonomies = taxonomyRepository.findAllByIdIn(request.taxonomyIds)
         val updated = existing.copy(
             name = request.name,
             type = request.type,
             amount = request.amount,
-            categories = categories
+            taxonomies = taxonomies
         )
         val saved = recurringTransactionRepository.update(updated)
         return mapToDto(saved)
@@ -60,6 +60,6 @@ open class RecurringTransactionService {
             name = recurringTransaction.name,
             type = recurringTransaction.type,
             amount = recurringTransaction.amount,
-            categoryIds = recurringTransaction.categories.map { it.id!! }
+            taxonomyIds = recurringTransaction.taxonomies.map { it.id!! }
         )
 }

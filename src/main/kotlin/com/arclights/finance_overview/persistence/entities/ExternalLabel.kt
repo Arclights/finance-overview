@@ -27,11 +27,11 @@ data class ExternalLabel(
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "external_labels_categories",
+        name = "external_labels_taxonomies",
         joinColumns = [JoinColumn(name = "external_label_id")],
-        inverseJoinColumns = [JoinColumn(name = "category_id")],
+        inverseJoinColumns = [JoinColumn(name = "taxonomy_id")],
     )
-    val categories: Set<Category>,
+    val taxonomies: Set<Taxonomy>,
 
     val createdAt: LocalDateTime? = null,
 

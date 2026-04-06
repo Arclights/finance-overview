@@ -39,9 +39,9 @@ data class Statement(
     @JoinTable(
         name = "statement_persons",
         joinColumns = [JoinColumn(name = "statement_id")],
-        inverseJoinColumns = [JoinColumn(name = "category_id")]
+        inverseJoinColumns = [JoinColumn(name = "taxonomy_id")]
     )
-    val persons: List<Category> = listOf(),
+    val persons: List<Taxonomy> = listOf(),
 
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null

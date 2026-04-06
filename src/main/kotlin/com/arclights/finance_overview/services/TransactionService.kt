@@ -1,6 +1,6 @@
 package com.arclights.finance_overview.services
 
-import com.arclights.finance_overview.CategoryQuery
+import com.arclights.finance_overview.TaxonomyQuery
 import com.arclights.finance_overview.TransactionImportException
 import com.arclights.finance_overview.http.models.TransactionDto
 import com.arclights.finance_overview.http.models.reponses.PageableResponse
@@ -8,8 +8,8 @@ import com.arclights.finance_overview.http.models.requests.CreateTransactionV1Re
 import com.arclights.finance_overview.http.models.requests.PageableRequest
 import com.arclights.finance_overview.mappers.PageMapper
 import com.arclights.finance_overview.mappers.TransactionMapper
-import com.arclights.finance_overview.persistence.entities.Category
-import com.arclights.finance_overview.persistence.repositories.CategoryRepository
+import com.arclights.finance_overview.persistence.entities.Taxonomy
+import com.arclights.finance_overview.persistence.repositories.TaxonomyRepository
 import com.arclights.finance_overview.persistence.repositories.StatementRepository
 import com.arclights.finance_overview.persistence.repositories.TransactionRepository
 import io.micronaut.transaction.annotation.Transactional
@@ -26,7 +26,7 @@ open class TransactionService {
     private lateinit var statementRepository: StatementRepository
 
     @Inject
-    private lateinit var categoryRepository: CategoryRepository
+    private lateinit var taxonomyRepository: TaxonomyRepository
 
     @Inject
     private lateinit var pageMapper: PageMapper
@@ -37,9 +37,9 @@ open class TransactionService {
     fun createTransaction(statementId: UUID, request: CreateTransactionV1Request): TransactionDto {
         val statement = statementRepository.getById(statementId)!!
 
-        val categories = getCategoriesOrThrow(request.categoryIds)
+        val taxonomies = getTaxonomiesOrThrow(request.taxonomyIds)
 
-        val transaction = transactionMapper.map(request, statement, categories)
+        val transaction = transactionMapper.map(request, statement, taxonomies)
 
         val createdTransaction = transactionRepository.save(transaction)
 
@@ -49,9 +49,9 @@ open class TransactionService {
     fun updateTransaction(transactionId: UUID, request: CreateTransactionV1Request): TransactionDto {
         var transaction = transactionRepository.getById(transactionId)!!
 
-        val categories = getCategoriesOrThrow(request.categoryIds)
+        val taxonomies = getTaxonomiesOrThrow(request.taxonomyIds)
 
-        transaction = transactionMapper.map(request, transaction, categories)
+        transaction = transactionMapper.map(request, transaction, taxonomies)
 
         val updatedTransaction = transactionRepository.update(transaction)
 
@@ -61,25 +61,25 @@ open class TransactionService {
     @Transactional
     open fun getTransactions(
         statementId: UUID,
-        categoryQueryString: String,
+        taxonomyQueryString: String,
         pageableRequest: PageableRequest
     ): PageableResponse<TransactionDto> {
-        val categoryQuery = CategoryQuery.parse(categoryQueryString)
+        val taxonomyQuery = TaxonomyQuery.parse(taxonomyQueryString)
 
         return transactionRepository
-            .findByQuery(statementId, categoryQuery, pageableRequest.toPageable())
+            .findByQuery(statementId, taxonomyQuery, pageableRequest.toPageable())
             .let { pageMapper.map(it, transactionMapper::mapToDto) }
     }
 
-    fun getCategoriesOrThrow(categoryIds: Set<UUID>): Set<Category> {
-        val categories = categoryRepository.findAllByIdIn(categoryIds)
+    fun getTaxonomiesOrThrow(taxonomyIds: Set<UUID>): Set<Taxonomy> {
+        val taxonomies = taxonomyRepository.findAllByIdIn(taxonomyIds)
 
-        val notFound = categoryIds.minus(categories.map(Category::id).toSet())
+        val notFound = taxonomyIds.minus(taxonomies.map(Taxonomy::id).toSet())
 
         if (notFound.isNotEmpty()) {
-            throw TransactionImportException("Could not find categories with ids $notFound")
+            throw TransactionImportException("Could not find taxonomies with ids $notFound")
         }
 
-        return categories
+        return taxonomies
     }
 }
