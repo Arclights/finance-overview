@@ -10,16 +10,16 @@ data class TransactionDto(
     val id: UUID,
     val date: LocalDate,
     val title: String,
-    val amount: TransactionAmountDto,
+    val type: TransactionTypeDto,
+    val amount: BigDecimal,
     val comment: String?,
-    val categoryIds:List<UUID>
-) {
-    @Serdeable
-    enum class TransactionTypeDto {
-        INCOME,
-        EXPENSE
-    }
-}
+    val categoryIds: List<UUID>,
+    val recurringTransactionId: UUID? = null,
+    val recurringTransactionAmount: BigDecimal? = null
+)
 
 @Serdeable
-data class TransactionAmountDto(val `in`: BigDecimal, val out: BigDecimal)
+enum class TransactionTypeDto {
+    INCOME,
+    EXPENSE
+}

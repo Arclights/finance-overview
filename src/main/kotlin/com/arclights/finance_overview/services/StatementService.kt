@@ -10,10 +10,17 @@ import com.arclights.finance_overview.mappers.CategoryMapper
 import com.arclights.finance_overview.persistence.entities.Statement
 import com.arclights.finance_overview.persistence.entities.Transaction
 import com.arclights.finance_overview.persistence.repositories.CategoryRepository
+import com.arclights.finance_overview.mappers.TransactionMapper
+import com.arclights.finance_overview.persistence.repositories.RecurringTransactionRepository
 import com.arclights.finance_overview.persistence.repositories.StatementRepository
+import com.arclights.finance_overview.persistence.repositories.TransactionRepository
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.exceptions.HttpStatusException
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.transaction.Transactional
+import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.UUID
 
 @Singleton
@@ -26,6 +33,15 @@ open class StatementService {
 
     @Inject
     private lateinit var categoryMapper: CategoryMapper
+
+    @Inject
+    private lateinit var transactionMapper: TransactionMapper
+
+    @Inject
+    private lateinit var recurringTransactionRepository: RecurringTransactionRepository
+
+    @Inject
+    private lateinit var transactionRepository: TransactionRepository
 
     @Transactional
     open fun createStatement(createStatementRequest: CreateStatementRequest): StatementDto {
@@ -59,6 +75,16 @@ open class StatementService {
         )
 
         val savedStatement = statementRepository.save(statement)
+
+        val recurringTransactions = recurringTransactionRepository.findAll().toList()
+        if (recurringTransactions.isNotEmpty()) {
+            val placeholderDate = LocalDate.of(savedStatement.year, savedStatement.month, 1)
+            val placeholderTransactions = recurringTransactions.map { recurringTransaction ->
+                transactionMapper.map(recurringTransaction, savedStatement, placeholderDate)
+            }
+            transactionRepository.saveAll(placeholderTransactions)
+        }
+
         return mapStatement(savedStatement)
     }
 
@@ -94,8 +120,9 @@ open class StatementService {
     )
 
     @Transactional
-    open fun getTransactionSummaryByPerson(statementId: UUID): List<PersonSummaryV1>? {
-        val statement = statementRepository.getById(statementId) ?: return null
+    open fun getTransactionSummaryByPerson(statementId: UUID): List<PersonSummaryV1> {
+        val statement = statementRepository.getById(statementId)
+            ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "Statement $statementId not found")
 
         if (statement.persons.isEmpty()) {
             return emptyList()

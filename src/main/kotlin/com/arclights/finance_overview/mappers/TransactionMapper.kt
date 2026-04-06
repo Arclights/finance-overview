@@ -1,35 +1,31 @@
 package com.arclights.finance_overview.mappers
 
-import com.arclights.finance_overview.http.models.TransactionAmountDto
 import com.arclights.finance_overview.http.models.TransactionDto
+import com.arclights.finance_overview.http.models.TransactionTypeDto
 import com.arclights.finance_overview.http.models.requests.CreateTransactionV1Request
 import com.arclights.finance_overview.persistence.entities.Category
 import com.arclights.finance_overview.persistence.entities.OriginalTransactionName
+import com.arclights.finance_overview.persistence.entities.RecurringTransaction
 import com.arclights.finance_overview.persistence.entities.Statement
 import com.arclights.finance_overview.persistence.entities.Transaction
 import com.arclights.finance_overview.transactionimport.TransactionImport
-import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import java.math.BigDecimal
+import java.time.LocalDate
 
 @Singleton
 class TransactionMapper {
-
-    @Inject
-    private lateinit var categoryMapper: CategoryMapper
 
     fun mapToDto(transaction: Transaction): TransactionDto = TransactionDto(
         id = transaction.id!!,
         date = transaction.date,
         title = transaction.originalName,
-        amount = mapAmount(transaction),
+        type = if (transaction.type == Transaction.TransactionType.Income) TransactionTypeDto.INCOME else TransactionTypeDto.EXPENSE,
+        amount = transaction.amount,
         comment = transaction.comment,
-        categoryIds = transaction.categories.map { it.id!! }
-    )
-
-    fun mapAmount(transaction: Transaction): TransactionAmountDto = TransactionAmountDto(
-        `in` = if (transaction.type == Transaction.TransactionType.Income) transaction.amount else BigDecimal.ZERO,
-        out = if (transaction.type == Transaction.TransactionType.Expense) transaction.amount else BigDecimal.ZERO
+        categoryIds = transaction.categories.map { it.id!! },
+        recurringTransactionId = transaction.recurringTransaction?.id,
+        recurringTransactionAmount = transaction.recurringTransaction?.amount
     )
 
     fun map(
@@ -59,18 +55,29 @@ class TransactionMapper {
             date = request.date,
             originalName = request.title,
             statement = statement,
-            type = if (request.amount.`in` > BigDecimal.ZERO) Transaction.TransactionType.Income else Transaction.TransactionType.Expense,
-            amount = if (request.amount.`in` > BigDecimal.ZERO) request.amount.`in` else request.amount.`out`,
+            type = if (request.type == TransactionTypeDto.INCOME) Transaction.TransactionType.Income else Transaction.TransactionType.Expense,
+            amount = request.amount,
             comment = request.comment,
             categories = categories
+        )
+
+    fun map(recurringTransaction: RecurringTransaction, statement: Statement, date: LocalDate): Transaction =
+        Transaction(
+            statement = statement,
+            originalName = recurringTransaction.name,
+            date = date,
+            amount = recurringTransaction.amount ?: BigDecimal.ZERO,
+            type = recurringTransaction.type,
+            categories = recurringTransaction.categories.toHashSet(),
+            recurringTransaction = recurringTransaction
         )
 
     fun map(request: CreateTransactionV1Request, transaction: Transaction, categories: Set<Category>): Transaction =
         transaction.copy(
             date = request.date,
             originalName = request.title,
-            type = if (request.amount.`in` > BigDecimal.ZERO) Transaction.TransactionType.Income else Transaction.TransactionType.Expense,
-            amount = if (request.amount.`in` > BigDecimal.ZERO) request.amount.`in` else request.amount.`out`,
+            type = if (request.type == TransactionTypeDto.INCOME) Transaction.TransactionType.Income else Transaction.TransactionType.Expense,
+            amount = request.amount,
             comment = request.comment,
             categories = categories
         )

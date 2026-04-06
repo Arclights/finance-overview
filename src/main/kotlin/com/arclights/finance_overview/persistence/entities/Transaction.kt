@@ -54,6 +54,9 @@ data class Transaction(
     )
     val categories: Set<Category>,
 
+    @ManyToOne
+    val recurringTransaction: RecurringTransaction? = null,
+
     val createdAt: LocalDateTime? = null,
 
     val updatedAt: LocalDateTime? = null
