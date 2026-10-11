@@ -1,0 +1,9 @@
+.git
+.gradle
+.idea
+.micronaut
+build
+out
+*.iml
+# Credentials are passed in as environment variables instead
+src/main/resources/application-local.yml
