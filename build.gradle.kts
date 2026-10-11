@@ -1,12 +1,12 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.9.25"
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.25"
-    id("org.jetbrains.kotlin.plugin.jpa") version "1.9.25"
-    id("com.google.devtools.ksp") version "1.9.25-1.0.20"
-    id("com.gradleup.shadow") version "8.3.9"
-    id("io.micronaut.application") version "4.6.1"
-    id("io.micronaut.test-resources") version "4.6.1"
-    id("io.micronaut.aot") version "4.6.1"
+    id("org.jetbrains.kotlin.jvm") version "2.4.21"
+    id("org.jetbrains.kotlin.plugin.allopen") version "2.4.21"
+    id("org.jetbrains.kotlin.plugin.jpa") version "2.4.21"
+    id("com.google.devtools.ksp") version "2.3.12"
+    id("com.gradleup.shadow") version "9.6.1"
+    id("io.micronaut.application") version "4.6.2"
+    id("io.micronaut.test-resources") version "4.6.2"
+    id("io.micronaut.aot") version "4.6.2"
 }
 
 version = "0.1"
@@ -52,7 +52,13 @@ application {
     mainClass.set("com.arclights.finance_overview.ApplicationKt")
 }
 java {
-    sourceCompatibility = JavaVersion.toVersion("21")
+    sourceCompatibility = JavaVersion.toVersion("26")
+    targetCompatibility = JavaVersion.toVersion("26")
+}
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_26)
+    }
 }
 
 
