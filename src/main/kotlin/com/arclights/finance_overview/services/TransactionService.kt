@@ -12,6 +12,8 @@ import com.arclights.finance_overview.persistence.entities.Taxonomy
 import com.arclights.finance_overview.persistence.repositories.TaxonomyRepository
 import com.arclights.finance_overview.persistence.repositories.StatementRepository
 import com.arclights.finance_overview.persistence.repositories.TransactionRepository
+import io.micronaut.http.HttpStatus
+import io.micronaut.http.exceptions.HttpStatusException
 import io.micronaut.transaction.annotation.Transactional
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
@@ -56,6 +58,17 @@ open class TransactionService {
         val updatedTransaction = transactionRepository.update(transaction)
 
         return transactionMapper.mapToDto(updatedTransaction)
+    }
+
+    // Loads and removes the entity (rather than deleteById's bulk delete) so Hibernate
+    // clears the transaction_taxonomies join rows, which have no ON DELETE CASCADE.
+    @Transactional
+    open fun deleteTransaction(statementId: UUID, transactionId: UUID) {
+        val transaction = transactionRepository.getById(transactionId)
+            ?.takeIf { it.statement.id == statementId }
+            ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "Transaction $transactionId not found in statement $statementId")
+
+        transactionRepository.delete(transaction)
     }
 
     @Transactional

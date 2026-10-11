@@ -10,6 +10,7 @@ import com.arclights.finance_overview.services.TransactionService
 import io.micronaut.http.MediaType
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
+import io.micronaut.http.annotation.Delete
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.PathVariable
 import io.micronaut.http.annotation.Post
@@ -53,6 +54,10 @@ class StatementController {
     @Put("/{id}/transactions/{transactionId}")
     fun updateTransaction(@PathVariable id: UUID, @PathVariable transactionId: UUID, @Body request: CreateTransactionV1Request) =
         transactionService.updateTransaction(transactionId, request)
+
+    @Delete("/{id}/transactions/{transactionId}")
+    fun deleteTransaction(@PathVariable id: UUID, @PathVariable transactionId: UUID) =
+        transactionService.deleteTransaction(id, transactionId)
 
     @Post(value = "/{id}/transactions/import/{externalSource}", consumes = [MediaType.MULTIPART_FORM_DATA])
     fun importTransactions(id: UUID, file: ByteArray, externalSource: ExternalSource) =
