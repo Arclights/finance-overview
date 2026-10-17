@@ -36,7 +36,11 @@ open class TransactionService {
     @Inject
     private lateinit var transactionMapper: TransactionMapper
 
-    fun createTransaction(statementId: UUID, request: CreateTransactionV1Request): TransactionDto {
+    @Inject
+    private lateinit var recalculationService: CalculatedTransactionRecalculationService
+
+    @Transactional
+    open fun createTransaction(statementId: UUID, request: CreateTransactionV1Request): TransactionDto {
         val statement = statementRepository.getById(statementId)!!
 
         val taxonomies = getTaxonomiesOrThrow(request.taxonomyIds)
@@ -45,17 +49,30 @@ open class TransactionService {
 
         val createdTransaction = transactionRepository.save(transaction)
 
+        recalculationService.onTransactionsChanged(statementId, request.taxonomyIds)
+
         return transactionMapper.mapToDto(createdTransaction)
     }
 
-    fun updateTransaction(transactionId: UUID, request: CreateTransactionV1Request): TransactionDto {
+    @Transactional
+    open fun updateTransaction(transactionId: UUID, request: CreateTransactionV1Request): TransactionDto {
         var transaction = transactionRepository.getById(transactionId)!!
+
+        // Generated rows are system-managed (spec §4.2); an edit would be silently overwritten
+        // by the next recalculation, so it's rejected instead.
+        if (transaction.calculatedTransactionDefinition != null) {
+            throw HttpStatusException(HttpStatus.BAD_REQUEST, "Transaction $transactionId is calculated and can't be edited")
+        }
+
+        val taxonomyIdsBefore = transaction.taxonomies.map { it.id!! }.toSet()
 
         val taxonomies = getTaxonomiesOrThrow(request.taxonomyIds)
 
         transaction = transactionMapper.map(request, transaction, taxonomies)
 
         val updatedTransaction = transactionRepository.update(transaction)
+
+        recalculationService.onTransactionsChanged(transaction.statement.id!!, taxonomyIdsBefore + request.taxonomyIds)
 
         return transactionMapper.mapToDto(updatedTransaction)
     }
@@ -68,7 +85,14 @@ open class TransactionService {
             ?.takeIf { it.statement.id == statementId }
             ?: throw HttpStatusException(HttpStatus.NOT_FOUND, "Transaction $transactionId not found in statement $statementId")
 
+        val taxonomyIds = transaction.taxonomies.map { it.id!! }.toSet()
+
         transactionRepository.delete(transaction)
+
+        // Generated rows are never matched by a variable, so deleting one changes nothing else.
+        if (transaction.calculatedTransactionDefinition == null) {
+            recalculationService.onTransactionsChanged(statementId, taxonomyIds)
+        }
     }
 
     @Transactional

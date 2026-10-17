@@ -27,6 +27,9 @@ open class VariableService {
     @Inject
     private lateinit var calculatedTransactionDefinitionRepository: CalculatedTransactionDefinitionRepository
 
+    @Inject
+    private lateinit var recalculationService: CalculatedTransactionRecalculationService
+
     @Transactional
     open fun getAll(): List<VariableDto> =
         variableRepository.findAll().map(::mapToDto)
@@ -63,6 +66,7 @@ open class VariableService {
             fallbackAverage = request.fallbackAverage
         )
         val saved = variableRepository.update(updated)
+        recalculationService.onVariableChanged(saved)
         return mapToDto(saved)
     }
 

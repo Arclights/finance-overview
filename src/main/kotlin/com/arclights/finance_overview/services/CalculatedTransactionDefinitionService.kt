@@ -31,6 +31,9 @@ open class CalculatedTransactionDefinitionService {
     @Inject
     private lateinit var transactionRepository: TransactionRepository
 
+    @Inject
+    private lateinit var recalculationService: CalculatedTransactionRecalculationService
+
     @Transactional
     open fun getAll(): List<CalculatedTransactionDefinitionDto> =
         calculatedTransactionDefinitionRepository.findAll().map(::mapToDto)
@@ -48,6 +51,7 @@ open class CalculatedTransactionDefinitionService {
             resultTaxonomies = getTaxonomiesOrThrow(request.resultTaxonomyIds)
         )
         val saved = calculatedTransactionDefinitionRepository.save(definition)
+        recalculationService.onDefinitionCreated(saved)
         return mapToDto(saved)
     }
 
@@ -61,6 +65,7 @@ open class CalculatedTransactionDefinitionService {
             resultTaxonomies = getTaxonomiesOrThrow(request.resultTaxonomyIds)
         )
         val saved = calculatedTransactionDefinitionRepository.update(updated)
+        recalculationService.onDefinitionChanged(saved)
         return mapToDto(saved)
     }
 

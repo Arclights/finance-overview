@@ -38,6 +38,9 @@ open class TransactionImportService {
     @Inject
     private lateinit var originalTransactionNameRepository: OriginalTransactionNameRepository
 
+    @Inject
+    private lateinit var recalculationService: CalculatedTransactionRecalculationService
+
     @Transactional
     open fun import(statementId: UUID, file: ByteArray, externalSource: ExternalSource) {
         val statement = statementRepository.getById(statementId)!!
@@ -62,6 +65,8 @@ open class TransactionImportService {
         println(originalTransactionNamesMap)
         println(transactions)
         transactionRepository.saveAll(transactions)
+
+        recalculationService.onTransactionsChanged(statementId, transactions.flatMap { it.taxonomies }.map { it.id!! }.toSet())
     }
 
     private fun getOriginalTransactionNames(cardTransactions: List<TransactionImport.ImportedCardTransaction>): Map<String, OriginalTransactionName> {
