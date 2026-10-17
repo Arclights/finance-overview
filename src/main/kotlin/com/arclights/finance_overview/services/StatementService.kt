@@ -17,6 +17,7 @@ import com.arclights.finance_overview.mappers.TransactionMapper
 import com.arclights.finance_overview.persistence.repositories.RecurringTransactionRepository
 import com.arclights.finance_overview.persistence.repositories.StatementRepository
 import com.arclights.finance_overview.persistence.repositories.TransactionRepository
+import com.arclights.finance_overview.persistence.repositories.VariableRepository
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.exceptions.HttpStatusException
 import jakarta.inject.Inject
@@ -45,6 +46,9 @@ open class StatementService {
 
     @Inject
     private lateinit var transactionRepository: TransactionRepository
+
+    @Inject
+    private lateinit var variableRepository: VariableRepository
 
     @Transactional
     open fun createStatement(createStatementRequest: CreateStatementRequest): StatementDto {
@@ -79,7 +83,13 @@ open class StatementService {
 
         val savedStatement = statementRepository.save(statement)
 
-        val recurringTransactions = recurringTransactionRepository.findAll().toList()
+        // A recurring transaction used as a variable's source would pollute that variable's
+        // matching transactions with its flat placeholder, so it stops generating one.
+        val suppressedRecurringTransactionIds = variableRepository.findAll()
+            .mapNotNull { it.recurringTransaction?.id }
+            .toSet()
+        val recurringTransactions = recurringTransactionRepository.findAll()
+            .filterNot { it.id in suppressedRecurringTransactionIds }
         if (recurringTransactions.isNotEmpty()) {
             val placeholderDate = LocalDate.of(savedStatement.year, savedStatement.month, 1)
             val placeholderTransactions = recurringTransactions.map { recurringTransaction ->

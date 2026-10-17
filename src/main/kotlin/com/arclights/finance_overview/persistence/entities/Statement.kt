@@ -45,4 +45,8 @@ data class Statement(
 
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null
-)
+) {
+    companion object {
+        val chronologicalOrder: Comparator<Statement> = compareBy({ it.year }, { it.month })
+    }
+}
