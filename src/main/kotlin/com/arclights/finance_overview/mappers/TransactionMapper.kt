@@ -25,7 +25,8 @@ class TransactionMapper {
         comment = transaction.comment,
         taxonomyIds = transaction.taxonomies.map { it.id!! },
         recurringTransactionId = transaction.recurringTransaction?.id,
-        recurringTransactionAmount = transaction.recurringTransaction?.amount
+        recurringTransactionAmount = transaction.recurringTransaction?.amount,
+        calculatedTransactionDefinitionId = transaction.calculatedTransactionDefinition?.id
     )
 
     fun map(

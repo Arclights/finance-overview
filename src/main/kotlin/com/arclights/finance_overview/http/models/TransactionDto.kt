@@ -15,7 +15,8 @@ data class TransactionDto(
     val comment: String?,
     val taxonomyIds: List<UUID>,
     val recurringTransactionId: UUID? = null,
-    val recurringTransactionAmount: BigDecimal? = null
+    val recurringTransactionAmount: BigDecimal? = null,
+    val calculatedTransactionDefinitionId: UUID? = null
 )
 
 @Serdeable

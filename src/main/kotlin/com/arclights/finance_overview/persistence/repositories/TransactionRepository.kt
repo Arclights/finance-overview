@@ -2,6 +2,7 @@ package com.arclights.finance_overview.persistence.repositories
 
 import com.arclights.finance_overview.TaxonomyQuery
 import com.arclights.finance_overview.persistence.TransactionSpecifications.Companion.isPartOfStatement
+import com.arclights.finance_overview.persistence.entities.CalculatedTransactionDefinition
 import com.arclights.finance_overview.persistence.entities.Transaction
 import io.micronaut.data.annotation.Repository
 import io.micronaut.data.model.Page
@@ -14,6 +15,7 @@ import java.util.UUID
 @Repository
 abstract class TransactionRepository : PageableRepository<Transaction, UUID>, JpaSpecificationExecutor<Transaction> {
     abstract fun getById(id: UUID): Transaction?
+    abstract fun existsByCalculatedTransactionDefinition(calculatedTransactionDefinition: CalculatedTransactionDefinition): Boolean
     @Transactional
     open fun findByQuery(statementId: UUID, taxonomyQuery: TaxonomyQuery, pageable: Pageable): Page<Transaction> =
         findAll(isPartOfStatement(statementId), pageable)//.and(hasTaxonomies(taxonomyQuery)), pageable)

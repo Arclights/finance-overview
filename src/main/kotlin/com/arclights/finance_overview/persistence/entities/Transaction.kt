@@ -57,6 +57,9 @@ data class Transaction(
     @ManyToOne
     val recurringTransaction: RecurringTransaction? = null,
 
+    @ManyToOne
+    val calculatedTransactionDefinition: CalculatedTransactionDefinition? = null,
+
     val createdAt: LocalDateTime? = null,
 
     val updatedAt: LocalDateTime? = null
