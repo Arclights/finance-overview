@@ -63,6 +63,13 @@ kotlin {
 
 
 graalvmNative.toolchainDetection.set(false)
+
+// The test resources server dumps a CDS archive on JDK 17+, but on JDK 26 that dump fails
+// because the server's JMX agent modifies the module graph mid-dump (NotCompliantMBeanException).
+tasks.withType<io.micronaut.gradle.testresources.StartTestResourcesService>().configureEach {
+    useClassDataSharing.set(false)
+}
+
 micronaut {
     runtime("netty")
     testRuntime("junit5")
