@@ -58,7 +58,7 @@ open class TransactionService {
     open fun updateTransaction(transactionId: UUID, request: CreateTransactionV1Request): TransactionDto {
         var transaction = transactionRepository.getById(transactionId)!!
 
-        // Generated rows are system-managed (spec ง4.2); an edit would be silently overwritten
+        // Generated rows are system-managed (spec ยง4.2); an edit would be silently overwritten
         // by the next recalculation, so it's rejected instead.
         if (transaction.calculatedTransactionDefinition != null) {
             throw HttpStatusException(HttpStatus.BAD_REQUEST, "Transaction $transactionId is calculated and can't be edited")
